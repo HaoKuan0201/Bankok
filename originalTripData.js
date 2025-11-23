@@ -37,7 +37,7 @@ const originalTripData = {
                     "mapURL": "",
                     "transport": "BTS",
                     "cost": "58",
-                    "notes": "飯店在 Ratchathewi 站附近；1號出口；"
+                    "notes": "飯店在 Ratchathewi 站附近；1號出口"
                 },
                 {
                     "time": "22:30",
@@ -65,7 +65,7 @@ const originalTripData = {
                 },
                 {
                     "time": "08:50",
-                    "location": "Saphan Hua Chang碼頭 → Pratunam 碼頭",
+                    "location": "Saphan Hua Chang 碼頭 → Pratunam 碼頭",
                     "transport": "船",
                     "cost": "11",
                     "notes": "船票 11 泰銖；ท่าเรือประตูน้ำ",
@@ -73,7 +73,7 @@ const originalTripData = {
                 },
                 {
                     "time": "09:00-09:30",
-                    "location": "Grand Superrich換匯",
+                    "location": "Grand Superrich 換匯",
                     "transport": "步行",
                     "cost": "0",
                     "notes": "步行前往",
