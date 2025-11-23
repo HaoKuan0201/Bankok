@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曼谷五日完美行程</title>
+</head>
+<body>
+
+    <!-- 頂部標題 -->
+    <header class="app-header">
+        <div class="header-top">
+            <div class="header-titles">
+                <h1>曼谷五日完美行程</h1>
+                <p class="subtitle">11/27 (四) - 12/1 (一)</p>
+            </div>
+            
+            <!-- 按鈕控制群組 -->
+            <div class="header-controls">
+                <button id="copy-data-btn" class="edit-toggle-btn" onclick="copyAppDataToClipboard()">複製數據</button>
+                <button id="edit-toggle-btn" class="edit-toggle-btn" onclick="toggleEditMode()">開啟編輯</button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Toast 通知欄 -->
+    <div id="toast-notification"></div>
+
+    <!-- 日期導航欄 -->
+    <nav class="day-nav">
+        <div class="nav-container" id="nav-container">
+            <!-- JavaScript 將在此處動態生成標籤 -->
+        </div>
+    </nav>
+
+    <!-- 主要內容區 -->
+    <main id="schedule-container" class="schedule-container">
+        <!-- JavaScript 將在此處渲染當日行程 -->
+    </main>
+    
+    <!-- 編輯/新增行程 Modal -->
+    <div id="edit-modal" class="edit-modal">
+        <div class="modal-content">
+            <h3 id="modal-title">編輯行程</h3>
+            <form id="event-form">
+                <input type="hidden" id="event-day-index">
+                <input type="hidden" id="event-index">
+
+                <div class="form-group">
+                    <label for="event-time-input">時間 (格式: HH:MM 或 HH:MM-HH:MM)</label>
+                    <input type="text" id="event-time-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-location-input">地點/活動</label>
+                    <input type="text" id="event-location-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-map-url-input">地圖連結 (可選)</label>
+                    <input type="url" id="event-map-url-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="event-transport-input">交通方式 (例如: 步行, BTS, Bolt)</label>
+                    <input type="text" id="event-transport-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-estimated-cost-input">預估花費 (泰銖)</label>
+                    <input type="number" id="event-estimated-cost-input" value="0" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-notes-input">備註 (可選)</label>
+                    <textarea id="event-notes-input" rows="3"></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="cancel-btn" onclick="closeEditModal()">取消</button>
+                    <button type="submit" class="save-btn">儲存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- --- CSS Styles (Moved to Bottom) --- -->
+    <style>
+        /* Reset & Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-color: #2C3E50; /* 深藍灰 */
+            --accent-color: #F1C40F;  /* 泰式金 */
+            --bg-color: #F4F6F7;
+            --card-bg: #FFFFFF;
+            --text-main: #333333;
+            --text-light: #7F8C8D;
+            
+            /* Transport Colors */
+            --trans-walk: #27AE60; /* 綠色 */
+            --trans-bts: #2980B9;  /* 藍色 */
+            --trans-boat: #16A085; /* 水藍/青色 */
+            --trans-car: #C0392B;  /* 紅色 */
+
+            --danger: #E74C3C;
+            --success: #2ECC71;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: 60px; /* Space for footer/scroll */
+        }
+
+        /* Header */
+        .app-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 15px 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* New: Button Group for Header */
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .header-titles {
+            text-align: left;
+        }
+        
+        .app-header h1 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .edit-toggle-btn {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .edit-toggle-btn:hover {
+            background-color: #f39c12;
+            transform: translateY(-1px);
+        }
+        
+        /* Specific style for copy button */
+        #copy-data-btn {
+            background-color: #95a5a6; /* 淺灰 */
+            color: white;
+        }
+        
+        #copy-data-btn:hover {
+            background-color: #7f8c8d;
+        }
+
+        /* Navigation */
+        .day-nav {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 86px; /* Adjust based on header height approx */
+            z-index: 99;
+        }
+
+        .nav-container {
+            display: flex;
+            overflow-x: auto;
+            padding: 12px 10px;
+            -webkit-overflow-scrolling: touch;
+            gap: 10px;
+            scrollbar-width: none;
+        }
+        
+        .nav-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-btn {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: var(--accent-color);
+            border-color: var(--primary-color);
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(44, 62, 80, 0.2);
+        }
+
+        /* Timeline & Cards */
+        .schedule-container {
+            padding: 20px 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .day-theme {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .day-theme::after, .day-theme::before {
+            content: '';
+            height: 2px;
+            width: 30px;
+            background-color: var(--accent-color);
+            display: block;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid #ddd;
+            margin-left: 10px;
+        }
+
+        .event-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s, opacity 0.3s;
+            border: 1px solid transparent;
+        }
+
+        /* Timeline Dot */
+        .event-card::before {
+            content: '';
+            position: absolute;
+            left: -27px; /* Adjust based on timeline padding */
+            top: 20px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #ddd;
+            z-index: 1;
+        }
+
+        /* Event Header */
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .event-time {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1rem;
+            background: #f0f2f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            transform: scale(1.5);
+            cursor: pointer;
+            accent-color: var(--trans-walk);
+        }
+
+        /* Edit/Delete Icons */
+        .edit-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-controls button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .edit-controls button:hover {
+            opacity: 1;
+        }
+
+        .edit-icon { color: var(--primary-color); }
+        .delete-icon { color: var(--danger); }
+
+        /* New: Location Group and Map Icon */
+        .event-location-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .event-location {
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #2c3e50;
+            /* margin-bottom: 12px; (Removed) */
+        }
+
+        .map-icon {
+            color: var(--primary-color);
+            transition: color 0.2s;
+            flex-shrink: 0;
+            display: block; /* Ensure it takes up space */
+        }
+        
+        .map-icon:hover {
+            color: var(--accent-color);
+        }
+
+
+        /* Event Body */
+
+        .event-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        /* Transport Badges */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.85rem;
+        }
+
+        .trans-walk { background-color: var(--trans-walk); }
+        .trans-bts, .trans-mrt { background-color: var(--trans-bts); }
+        .trans-boat, .trans-ferry { background-color: var(--trans-boat); }
+        .trans-bolt, .trans-car, .trans-bus, .trans-包車 { background-color: var(--trans-car); }
+
+        /* Cost Section */
+        .cost-section {
+            background-color: #f8f9fa;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: #555;
+            cursor: pointer;
+            border: 1px dashed #ccc;
+            display: inline-flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .cost-section:active {
+            background-color: #e9ecef;
+        }
+
+        .cost-input {
+            width: 70px;
+            padding: 4px;
+            font-size: 0.9rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        /* Notes */
+        .event-notes {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background-color: #fff9c4; /* 淺黃底 */
+            color: #d35400;
+            font-weight: 700;
+            padding: 0 4px;
+            border-radius: 3px;
+        }
+
+        /* Completed State */
+        .event-card.completed .event-location,
+        .event-card.completed .event-time,
+        .event-card.completed .badge {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        
+        .event-card.completed {
+            background-color: #fcfcfc;
+            border-color: #eee;
+            box-shadow: none;
+        }
+        
+        .event-card.completed::before {
+            background-color: #bdc3c7;
+            box-shadow: none;
+        }
+
+        /* Daily Summary */
+        .daily-summary {
+            background: linear-gradient(135deg, var(--primary-color), #34495e);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+        }
+
+        .total-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .total-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .reset-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .reset-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Add Event Button */
+        .add-event-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: var(--success);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .add-event-btn:hover {
+            background-color: #27AE60;
+        }
+
+
+        /* --- Editing Modal/Form --- */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .edit-modal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transform: scale(0.95);
+            transition: transform 0.3s;
+        }
+        
+        .edit-modal.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .button-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .save-btn {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #bdc3c7;
+            color: var(--text-main);
+        }
+        
+        /* Toast Notification */
+        #toast-notification {
+            position: fixed;
+            top: 100px; /* Below the header */
+            right: 15px;
+            background-color: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(-20px);
+            z-index: 1001;
+            font-size: 0.9rem;
+        }
+        
+        #toast-notification.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    </style>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 全局變量和數據處理 ---
+        const STORAGE_KEY = 'bangkokTripData';
+        const CHECK_KEY_SUFFIX = '_done';
+        const COST_KEY_SUFFIX = '_cost';
+
+        // 這是原始數據結構，如果 localStorage 沒有數據，就會使用它
+        // 注意：已新增 mapURL 欄位
+        const originalTripData = {
+            "title": "曼谷五日完美行程 (11/27 - 12/1)",
+            "days": [
+                {
+                    "day": "Day 1", "date": "11/27 (四)", "fullDate": "2025-11-27", "theme": "抵達與夜市", "events": [
+                        {"time": "16:05", "location": "抵達 DMK 機場", "transport": "無", "cost": "0", "notes": "已抵達曼谷", "mapURL": "https://maps.app.goo.gl/95a5gB9D4gS7pT786"},
+                        {"time": "19:00-21:30", "location": "Save One Go Market 逛街用餐", "transport": "Bolt", "cost": "250", "notes": "建議費用：160-250 泰銖 (車費)；免費廁所", "mapURL": "https://maps.app.goo.gl/9R684x5R9wXq7R92A"},
+                        {"time": "21:30", "location": "BTS Yaek Kor Por Aor → Ratchathewi", "transport": "BTS", "cost": "58", "notes": "飯店在 Ratchathewi 站附近；1號出口", "mapURL": "https://maps.app.goo.gl/W5T2zE2Wn8Yn3g2f7"},
+                        {"time": "22:30", "location": "抵達 飯店", "transport": "步行/無", "cost": "0", "notes": "", "mapURL": ""},
+                    ]
+                },
+                {
+                    "day": "Day 2", "date": "11/28 (五)", "fullDate": "2025-11-28", "theme": "寺廟與河畔", "events": [
+                        {"time": "07:10-08:00", "location": "ปุ้ย อาหารตามสั่ง 早餐", "transport": "步行", "cost": "0", "notes": "飯店出發前用餐", "mapURL": "https://maps.app.goo.gl/A7C4Q7A9xWz5gH5F6"},
+                        {"time": "08:30-10:30", "location": "大皇宮", "transport": "Bolt", "cost": "500", "notes": "車費預計 100-150 泰銖；門票 500 泰銖；免費廁所", "mapURL": "https://maps.app.goo.gl/A8D2Q7A9xWz5gH5F6"},
+                        {"time": "10:50-11:50", "location": "Kuay Teow Kua Gai Aunty Pien 午餐", "transport": "步行", "cost": "0", "notes": "步行前往", "mapURL": "https://maps.app.goo.gl/E3J4K3P5gT2h7L2Y7"},
+                        {"time": "11:55-12:40", "location": "拉查波比托寺", "transport": "步行", "cost": "0", "notes": "免費廁所 (注意：廁所沒衛生紙)", "mapURL": "https://maps.app.goo.gl/B9E5R7B0yXz5gK5G7"},
+                        {"time": "12:50-13:40", "location": "老暹羅購物中心（換匯）", "transport": "步行", "cost": "0", "notes": "可在此處換匯", "mapURL": "https://maps.app.goo.gl/C0F6S8C1zYz6gL6H8"},
+                        {"time": "13:55-15:10", "location": "臥佛寺", "transport": "步行", "cost": "300", "notes": "門票 300 泰銖；免費廁所", "mapURL": "https://maps.app.goo.gl/D1G7T9D2aAa7gM7I9"},
+                        {"time": "15:15-15:30", "location": "Tha Tien 碼頭（N8）→ 鄭王廟", "transport": "渡輪", "cost": "5", "notes": "每10分鐘一班船", "mapURL": "https://maps.app.goo.gl/E2H8U0E3bBb8gN8J0"},
+                        {"time": "15:40-16:40", "location": "ใสสะอาด ก๋วยเตี๋ยวลูกชิ้นน้ำใส 用餐", "transport": "步行", "cost": "0", "notes": "步行前往", "mapURL": "https://maps.app.goo.gl/F3I9V1F4cCb9gO9K1"},
+                        {"time": "16:45-18:00", "location": "鄭王廟", "transport": "步行", "cost": "200", "notes": "門票 200 泰銖；免費廁所", "mapURL": "https://maps.app.goo.gl/G4J0W2G5dDc0gP0L2"},
+                        {"time": "18:10", "location": "藍船 → ICONSIAM", "transport": "船", "cost": "40", "notes": "船票 40 泰銖；或搭 18:40 班次；記得坐左邊", "mapURL": "https://maps.app.goo.gl/H5K1X3H6eDe1gQ1M3"},
+                        {"time": "18:00-20:30", "location": "ICONSIAM 逛街", "transport": "無", "cost": "0", "notes": "抵達後先去換匯；有免費廁所", "mapURL": "https://maps.app.goo.gl/I6L2Y4I7fEf2gR2N4"},
+                        {"time": "20:30", "location": "接駁船 → Sathorn碼頭 + BTS 回飯店", "transport": "船+BTS", "cost": "51", "notes": "GF 2號門上船；BTS Saphan Taksin(S6) → National Stadium(W1)；走水溝巷子回飯店", "mapURL": "https://maps.app.goo.gl/J7M3Z5J8gFg3gS3O5"},
+                    ]
+                },
+                {
+                    "day": "Day 3", "date": "11/29 (六)", "fullDate": "2025-11-29", "theme": "市集日", "events": [
+                        {"time": "08:45", "location": "Saphan Hua Chang碼頭 → Panfa Leelard 碼頭", "transport": "船", "cost": "12", "notes": "ท่าเรือผ่านฟ้าลีลาศ", "mapURL": "https://maps.app.goo.gl/K8N4A6K9hGh4gT4P6"},
+                        {"time": "09:00-09:50", "location": "王孫寺", "transport": "步行", "cost": "20", "notes": "門票 20 泰銖；收費廁所", "mapURL": "https://maps.app.goo.gl/L9O5B7L0iHi5gU5Q7"},
+                        {"time": "10:05-11:50", "location": "南龍傳統市場 用餐", "transport": "步行", "cost": "0", "notes": "市場內有廁所", "mapURL": "https://maps.app.goo.gl/M0P6C8M1jIj6gV6R8"},
+                        {"time": "12:00-13:00", "location": "Nangloeng Market → Wat Phai Tan (往恰圖恰方向)", "transport": "Bolt/公車", "cost": "160", "notes": "車費預計 130-160 泰銖", "mapURL": "https://maps.app.goo.gl/N1Q7D9N2kJk7gW7S9"},
+                        {"time": "13:10-16:30", "location": "Chatuchak 週末市集", "transport": "無", "cost": "0", "notes": "百貨公司內有廁所", "mapURL": "https://maps.app.goo.gl/O2R8E0O3lLl8gX8T0"},
+                        {"time": "16:40", "location": "BTS Mo Chit → Ha Yaek Lat Phrao", "transport": "BTS", "cost": "15", "notes": "4號出口", "mapURL": "https://maps.app.goo.gl/P3S9F1P4mMm9gY9U1"},
+                        {"time": "17:00-19:00", "location": "Liabduan Danneramit 夜市", "transport": "BTS", "cost": "5", "notes": "夜市廁所 5 泰銖", "mapURL": "https://maps.app.goo.gl/Q4T0G2Q5nNo0gZ0V2"},
+                        {"time": "19:05-20:00", "location": "Lotus’s Lat Phrao 超市", "transport": "步行", "cost": "0", "notes": "免費廁所", "mapURL": "https://maps.app.goo.gl/R5U1H3R6oOp1gA1W3"},
+                        {"time": "20:05", "location": "BTS Ha Yaek Lat Phrao → Ratchathewi", "transport": "BTS", "cost": "58", "notes": "1號出口回飯店", "mapURL": "https://maps.app.goo.gl/W5T2zE2Wn8Yn3g2f7"},
+                    ]
+                },
+                {
+                    "day": "Day 4", "date": "11/30 (日)", "fullDate": "2025-11-30", "theme": "購物探索", "events": [
+                        {"time": "07:50", "location": "Saphan Hua Chang碼頭 → Pratunam 碼頭", "transport": "船", "cost": "11", "notes": "船票 11 泰銖；ท่าเรือประตูน้ำ", "mapURL": "https://maps.app.goo.gl/S6V2I4S7pPq2gB2X4"},
+                        {"time": "08:00-08:50", "location": "紅大哥水門雞飯(總店) 早餐", "transport": "步行", "cost": "0", "notes": "步行前往", "mapURL": "https://maps.app.goo.gl/T7W3J5T8qQr3gC3Y5"},
+                        {"time": "09:00-09:50", "location": "Big C", "transport": "步行", "cost": "0", "notes": "", "mapURL": "https://maps.app.goo.gl/U8X4K6U9rRs4gD4Z6"},
+                        {"time": "10:00-11:30", "location": "象神、Central World", "transport": "步行", "cost": "0", "notes": "Central World 10點才開", "mapURL": "https://maps.app.goo.gl/V9Y5L7V0sSt5gE5A7"},
+                        {"time": "11:40-11:50", "location": "四面佛", "transport": "步行", "cost": "0", "notes": "步行前往", "mapURL": "https://maps.app.goo.gl/W0Z6M8W1tTu6gF6B8"},
+                        {"time": "12:05-13:40", "location": "Siam Center、暹羅廣場、20泰銖生醃海鮮", "transport": "步行", "cost": "0", "notes": "午餐/逛街", "mapURL": "https://maps.app.goo.gl/X1A7N9X2uUv7gG7C9"},
+                        {"time": "12:45", "location": "BTS Siam → Asok", "transport": "BTS", "cost": "32", "notes": "4號出口", "mapURL": "https://maps.app.goo.gl/Y2B8O0Y3vVw8gH8D0"},
+                        {"time": "14:05-16:00", "location": "Terminal 21 用餐&逛街", "transport": "步行", "cost": "0", "notes": "步行前往", "mapURL": "https://maps.app.goo.gl/Z3C9P1Z4wXx9gI9E1"},
+                        {"time": "16:00", "location": "MRT Sukhumvit → Samyan", "transport": "MRT", "cost": "27", "notes": "2號出口", "mapURL": "https://maps.app.goo.gl/A4D0Q2A5xYy0gJ0F2"},
+                        {"time": "16:40-17:00", "location": "Samyan Market", "transport": "步行", "cost": "0", "notes": "市場 17點關門，需注意時間", "mapURL": "https://maps.app.goo.gl/B5E1R3B6zZz1gK1G3"},
+                        {"time": "17:05-18:30", "location": "Aey Seafood 晚餐", "transport": "步行", "cost": "0", "notes": "步行前往", "mapURL": "https://maps.app.goo.gl/C6F2S4C70A02gL2H4"},
+                        {"time": "18:30-20:30", "location": "朱拉隆功夜市", "transport": "步行", "cost": "0", "notes": "步行前往", "mapURL": "https://maps.app.goo.gl/D7G3T5D81B13gM3I5"},
+                        {"time": "20:40", "location": "抵達 飯店", "transport": "步行", "cost": "0", "notes": "步行回飯店", "mapURL": ""},
+                    ]
+                },
+                {
+                    "day": "Day 5", "date": "12/1 (一)", "fullDate": "2025-12-01", "theme": "大城一日遊", "events": [
+                        {"time": "09:00", "location": "飯店集合", "transport": "包車", "cost": "0", "notes": "包車一日遊開始", "mapURL": ""},
+                        {"time": "10:45-11:40", "location": "Prasat Nakhon Luang", "transport": "包車", "cost": "20", "notes": "門票 20 泰銖", "mapURL": "https://maps.app.goo.gl/E8H4U6E92C24gN4J6"},
+                        {"time": "12:00-13:00", "location": "Kung Phuean Praew 午餐", "transport": "包車", "cost": "0", "notes": "午餐地點", "mapURL": "https://maps.app.goo.gl/F9I5V7F03D35gO5K7"},
+                        {"time": "13:15-14:10", "location": "崖差蒙空寺", "transport": "包車", "cost": "0", "notes": "", "mapURL": "https://maps.app.goo.gl/G0J6W8G14E46gP6L8"},
+                        {"time": "14:20-14:40", "location": "三寶公寺", "transport": "包車", "cost": "0", "notes": "", "mapURL": "https://maps.app.goo.gl/H1K7X9H25F57gQ7M9"},
+                        {"time": "14:55-15:40", "location": "柴瓦塔那蘭寺", "transport": "包車", "cost": "80", "notes": "門票 80 泰銖", "mapURL": "https://maps.app.goo.gl/I2L8Y0I36G68gR8N0"},
+                        {"time": "15:50-16:05", "location": "Roti Sai Mai Abeedeen-Pranom Sangaroon 糖絲卷餅", "transport": "包車", "cost": "0", "notes": "大城特色甜點", "mapURL": "https://maps.app.goo.gl/J3M9Z1J47H79gS9O1"},
+                        {"time": "16:10-16:50", "location": "Pa Lek Boat Noodle 晚餐", "transport": "包車", "cost": "0", "notes": "晚餐地點", "mapURL": "https://maps.app.goo.gl/K4N0A2K58I80gT0P2"},
+                        {"time": "16:55-18:00", "location": "瑪哈泰寺", "transport": "步行", "cost": "80", "notes": "門票 80 泰銖；注意：17點前要入場", "mapURL": "https://maps.app.goo.gl/L5O1B3L69J91gU1Q3"},
+                        {"time": "18:05-19:10", "location": "Ong Gaan Tolasap 夜市", "transport": "步行", "cost": "0", "notes": "大城夜市", "mapURL": "https://maps.app.goo.gl/M6P2C4M70K02gV2R4"},
+                        {"time": "20:30", "location": "DMK 機場", "transport": "包車", "cost": "0", "notes": "搭乘包車前往機場", "mapURL": "https://maps.app.goo.gl/95a5gB9D4gS7pT786"},
+                    ]
+                }
+            ]
+        };
+
+        let appData = {};
+        let currentDayIndex = 0;
+        let isEditMode = false;
+
+        // --- 初始化應用程式 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            appData = loadData();
+            initApp();
+            document.getElementById('event-form').addEventListener('submit', handleSaveEvent);
+        });
+
+        // --- 數據持久化 ---
+
+        function loadData() {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            if (storedData) {
+                try {
+                    const parsedData = JSON.parse(storedData);
+                    if (parsedData.days && parsedData.days.length > 0) {
+                        return parsedData;
+                    }
+                } catch (e) {
+                    console.error("Error parsing stored data, falling back to original data.", e);
+                }
+            }
+            return originalTripData;
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+        
+        // --- 複製數據功能 (複製到剪貼簿) ---
+        window.copyAppDataToClipboard = function() {
+            // 確保 appData 是最新的
+            const dataToCopy = JSON.stringify(appData, null, 4); 
+            
+            // 使用 execCommand('copy') 來複製到剪貼簿 (在 Canvas 環境中通常更可靠)
+            const textarea = document.createElement('textarea');
+            textarea.value = dataToCopy;
+            textarea.style.position = 'fixed'; // 防止滾動
+            textarea.style.left = '-9999px'; // 移到螢幕外
+            document.body.appendChild(textarea);
+            
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('✅ 數據已成功複製到剪貼簿！');
+                } else {
+                    showToast('❌ 複製失敗，請手動複製。');
+                }
+            } catch (err) {
+                console.error('Copy command failed:', err);
+                showToast('❌ 複製失敗，請手動複製。');
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        // 顯示 Toast 通知
+        function showToast(message) {
+            const toast = document.getElementById('toast-notification');
+            toast.textContent = message;
+            toast.classList.add('visible');
+            
+            clearTimeout(window.toastTimeout);
+            window.toastTimeout = setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3000);
+        }
+
+
+        // --- 核心應用邏輯 ---
+
+        function initApp() {
+            determineInitialDay();
+            renderNavigation();
+            renderDay(currentDayIndex);
+            updateEditButtonText();
+        }
+        
+        // 1. 自動判斷當前日期
+        function determineInitialDay() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            const foundIndex = appData.days.findIndex(d => d.fullDate === todayStr);
+            
+            if (foundIndex !== -1) {
+                currentDayIndex = foundIndex;
+            } else {
+                currentDayIndex = 0; // 默認為第一天
+            }
+        }
+
+        // 2. 渲染導航欄
+        function renderNavigation() {
+            const navContainer = document.getElementById('nav-container');
+            navContainer.innerHTML = '';
+
+            appData.days.forEach((dayData, index) => {
+                const btn = document.createElement('button');
+                btn.className = `nav-btn ${index === currentDayIndex ? 'active' : ''}`;
+                btn.textContent = `${dayData.day} (${dayData.date.split(' ')[0]})`;
+                btn.onclick = () => {
+                    currentDayIndex = index;
+                    updateNavState();
+                    renderDay(index);
+                };
+                navContainer.appendChild(btn);
+            });
+            
+            setTimeout(updateNavState, 100);
+        }
+
+        function updateNavState() {
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach((btn, index) => {
+                if (index === currentDayIndex) {
+                    btn.classList.add('active');
+                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // 3. 渲染當日行程
+        function renderDay(dayIndex) {
+            const container = document.getElementById('schedule-container');
+            const dayData = appData.days[dayIndex];
+            
+            container.innerHTML = '';
+
+            const themeHeader = document.createElement('div');
+            themeHeader.style.textAlign = 'center';
+            themeHeader.innerHTML = `<h2 class="day-theme">${dayData.theme}</h2>`;
+            container.appendChild(themeHeader);
+
+            const timeline = document.createElement('div');
+            timeline.className = 'timeline';
+
+            let dailyTotal = 0;
+
+            dayData.events.forEach((event, eventIndex) => {
+                const storageKeyPrefix = `trip_d${dayIndex}_e${eventIndex}`;
+                const isCompleted = localStorage.getItem(`${storageKeyPrefix}${CHECK_KEY_SUFFIX}`) === 'true';
+                const storedCost = localStorage.getItem(`${storageKeyPrefix}${COST_KEY_SUFFIX}`);
+                
+                const displayCost = storedCost !== null ? storedCost : '';
+                // 檢查 storedCost 是否為有效數字，以累加到 dailyTotal
+                if (storedCost && !isNaN(parseInt(storedCost))) dailyTotal += parseInt(storedCost);
+
+                const card = document.createElement('div');
+                card.className = `event-card ${isCompleted ? 'completed' : ''}`;
+                card.id = `card-${dayIndex}-${eventIndex}`;
+
+                let transportIcon = '🚶';
+                let transportClass = 'trans-walk';
+                const t = event.transport ? event.transport.toLowerCase() : '';
+                
+                if (t.includes('bts') || t.includes('mrt')) {
+                    transportIcon = '🚆';
+                    transportClass = 'trans-bts';
+                } else if (t.includes('船') || t.includes('渡輪') || t.includes('ferry')) {
+                    transportIcon = '⛴️';
+                    transportClass = 'trans-boat';
+                } else if (t.includes('bolt') || t.includes('包車') || t.includes('公車') || t.includes('car')) {
+                    transportIcon = '🚗';
+                    transportClass = 'trans-car';
+                }
+
+                const highlightedNotes = highlightKeywords(event.notes);
+                
+                let headerContent = '';
+                if (isEditMode) {
+                    headerContent = `
+                        <div class="edit-controls">
+                            <button onclick="startEditEvent(${dayIndex}, ${eventIndex})" class="edit-icon" title="編輯行程">
+                                ✏️
+                            </button>
+                            <button onclick="deleteEvent(${dayIndex}, ${eventIndex})" class="delete-icon" title="刪除行程">
+                                🗑️
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    headerContent = `
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" ${isCompleted ? 'checked' : ''} 
+                                onchange="toggleComplete(${dayIndex}, ${eventIndex}, this)">
+                        </label>
+                    `;
+                }
+
+                // 地圖圖標和連結
+                const mapIconHTML = event.mapURL ? `
+                    <a href="${event.mapURL}" target="_blank" class="map-icon" title="查看地圖">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                        </svg>
+                    </a>
+                ` : '';
+
+
+                card.innerHTML = `
+                    <div class="event-header">
+                        <span class="event-time">${event.time}</span>
+                        ${headerContent}
+                    </div>
+                    
+                    <div class="event-location-group">
+                        <div class="event-location">${event.location}</div>
+                        ${mapIconHTML}
+                    </div>
+                    
+                    <div class="event-details">
+                        <span class="badge ${transportClass}">${transportIcon} ${event.transport}</span>
+                        <div class="cost-section" onclick="enableCostEdit(${dayIndex}, ${eventIndex}, this)">
+                            <span id="cost-display-${dayIndex}-${eventIndex}">
+                                ${storedCost ? `實支: ฿${storedCost}` : `預估: ฿${event.cost}`}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="event-notes">${highlightedNotes}</div>
+                `;
+
+                timeline.appendChild(card);
+            });
+
+            container.appendChild(timeline);
+            
+            // 編輯模式下顯示新增按鈕
+            if (isEditMode) {
+                const addBtn = document.createElement('button');
+                addBtn.className = 'add-event-btn';
+                addBtn.textContent = '+ 新增行程';
+                addBtn.onclick = () => startAddEvent(dayIndex);
+                container.appendChild(addBtn);
+            }
+
+            // 每日總結
+            const summary = document.createElement('div');
+            summary.className = 'daily-summary';
+            summary.innerHTML = `
+                <div class="total-label">本日實際總花費</div>
+                <div class="total-amount">฿${dailyTotal}</div>
+                <button class="reset-btn" onclick="resetDailyCosts(${dayIndex})">重置本日花費</button>
+            `;
+            container.appendChild(summary);
+        }
+
+        // --- 編輯模式功能 & 排序 ---
+        
+        // 輔助函數：取得用於排序的時間（取時間範圍的起始時間）
+        function getSortableTime(timeStr) {
+            // 確保 timeStr 存在且是字串
+            if (!timeStr || typeof timeStr !== 'string') return '99:99'; 
+            
+            // 如果是時間範圍 (例如 "09:00-10:00")，只取起始時間 ("09:00")
+            const parts = timeStr.split('-');
+            return parts[0].trim();
+        }
+
+        // 核心排序函數：依時間排序行程
+        function sortEventsByTime(events) {
+            events.sort((a, b) => {
+                const timeA = getSortableTime(a.time);
+                const timeB = getSortableTime(b.time);
+
+                // 標準字串比較對 HH:MM 格式有效
+                if (timeA < timeB) {
+                    return -1;
+                }
+                if (timeA > timeB) {
+                    return 1;
+                }
+                // 時間相同時不改變順序
+                return 0;
+            });
+        }
+
+        window.toggleEditMode = function() {
+            isEditMode = !isEditMode;
+            updateEditButtonText();
+            renderDay(currentDayIndex);
+        }
+
+        function updateEditButtonText() {
+            const btn = document.getElementById('edit-toggle-btn');
+            btn.textContent = isEditMode ? '結束編輯' : '開啟編輯';
+            btn.style.backgroundColor = isEditMode ? 'var(--danger)' : 'var(--accent-color)';
+            btn.style.color = isEditMode ? 'white' : 'var(--primary-color)';
+        }
+        
+        // 打開編輯/新增 Modal
+        function openEditModal(dayIndex, eventIndex, isNew = false) {
+            const modal = document.getElementById('edit-modal');
+            const form = document.getElementById('event-form');
+            const title = document.getElementById('modal-title');
+            
+            // 重設表單
+            form.reset();
+            
+            document.getElementById('event-day-index').value = dayIndex;
+            document.getElementById('event-index').value = eventIndex !== null ? eventIndex : -1;
+
+            if (isNew) {
+                title.textContent = '新增行程';
+                document.getElementById('event-estimated-cost-input').value = '0'; // 預設成本為 0
+            } else {
+                title.textContent = '編輯行程';
+                const event = appData.days[dayIndex].events[eventIndex];
+                document.getElementById('event-time-input').value = event.time;
+                document.getElementById('event-location-input').value = event.location;
+                document.getElementById('event-map-url-input').value = event.mapURL || ''; // 新增
+                document.getElementById('event-transport-input').value = event.transport;
+                document.getElementById('event-estimated-cost-input').value = event.cost;
+                document.getElementById('event-notes-input').value = event.notes;
+            }
+
+            modal.classList.add('visible');
+        }
+
+        window.closeEditModal = function() {
+            document.getElementById('edit-modal').classList.remove('visible');
+        }
+        
+        window.startEditEvent = function(dayIndex, eventIndex) {
+            openEditModal(dayIndex, eventIndex, false);
+        }
+
+        window.startAddEvent = function(dayIndex) {
+            openEditModal(dayIndex, null, true);
+        }
+
+        // 儲存事件處理 (包含排序邏輯)
+        function handleSaveEvent(e) {
+            e.preventDefault();
+            
+            const dayIndex = parseInt(document.getElementById('event-day-index').value);
+            const eventIndex = parseInt(document.getElementById('event-index').value);
+
+            const newEvent = {
+                time: document.getElementById('event-time-input').value,
+                location: document.getElementById('event-location-input').value,
+                mapURL: document.getElementById('event-map-url-input').value.trim(), // 新增
+                transport: document.getElementById('event-transport-input').value,
+                cost: document.getElementById('event-estimated-cost-input').value || '0',
+                notes: document.getElementById('event-notes-input').value
+            };
+
+            if (eventIndex === -1) {
+                // 新增
+                appData.days[dayIndex].events.push(newEvent);
+            } else {
+                // 修改
+                appData.days[dayIndex].events[eventIndex] = newEvent;
+            }
+
+            // 排序當日所有行程
+            sortEventsByTime(appData.days[dayIndex].events);
+
+            saveData();
+            closeEditModal();
+            renderDay(dayIndex);
+        }
+
+        // 刪除事件處理
+        window.deleteEvent = function(dayIndex, eventIndex) {
+            // NOTE: 使用瀏覽器內建的 confirm() 在 iFrame 環境中可能不可見，但此處作為範例暫時保留。
+            // 建議在實際應用中替換為自定義 Modal。
+            if(!confirm("確定要刪除此行程嗎？")) return;
+
+            // 移除行程
+            appData.days[dayIndex].events.splice(eventIndex, 1);
+            saveData();
+            
+            // 刪除相關的 LocalStorage 數據
+            localStorage.removeItem(`trip_d${dayIndex}_e${eventIndex}${CHECK_KEY_SUFFIX}`);
+            localStorage.removeItem(`trip_d${dayIndex}_e${eventIndex}${COST_KEY_SUFFIX}`);
+            
+            // 重新排序並渲染
+            sortEventsByTime(appData.days[dayIndex].events);
+            renderDay(dayIndex);
+        }
+
+        // --- 記帳功能 (保留原有功能) ---
+
+        // 高亮關鍵字
+        function highlightKeywords(text) {
+            if (!text) return "";
+            const keywords = [
+                "免費廁所", "收費廁所", "廁所沒衛生紙", "廁所", 
+                "17點關門", "10點才開", "17點前要入場",
+                "1號出口", "2號出口", "4號出口", "GF 2號門", 
+                "先去換匯", "換匯",
+                "左邊"
+            ];
+            
+            let processedText = text;
+            keywords.forEach(keyword => {
+                const regex = new RegExp(`(${keyword})`, 'g');
+                processedText = processedText.replace(regex, '<span class="highlight">$1</span>');
+            });
+            return processedText;
+        }
+
+        // 切換完成狀態
+        window.toggleComplete = function(dayIndex, eventIndex, checkbox) {
+            if (isEditMode) return; // 編輯模式下禁用打勾
+            const card = document.getElementById(`card-${dayIndex}-${eventIndex}`);
+            const key = `trip_d${dayIndex}_e${eventIndex}${CHECK_KEY_SUFFIX}`;
+            
+            if (checkbox.checked) {
+                localStorage.setItem(key, 'true');
+                card.classList.add('completed');
+            } else {
+                localStorage.removeItem(key);
+                card.classList.remove('completed');
+            }
+        };
+
+        // 啟用費用編輯
+        window.enableCostEdit = function(dayIndex, eventIndex, element) {
+            if (isEditMode) return; // 編輯模式下禁用記帳編輯
+            if (element.querySelector('input')) return;
+
+            const displaySpan = document.getElementById(`cost-display-${dayIndex}-${eventIndex}`);
+            const savedCost = localStorage.getItem(`trip_d${dayIndex}_e${eventIndex}${COST_KEY_SUFFIX}`);
+            const initialValue = savedCost ? savedCost : '';
+
+            element.innerHTML = `
+                <input type="number" class="cost-input" value="${initialValue}" 
+                placeholder="金額" 
+                onblur="saveCost(${dayIndex}, ${eventIndex}, this)" 
+                onkeydown="if(event.key === 'Enter') this.blur()">
+            `;
+            
+            const input = element.querySelector('input');
+            input.focus();
+        };
+
+        // 儲存費用並重繪
+        window.saveCost = function(dayIndex, eventIndex, input) {
+            const val = input.value;
+            const key = `trip_d${dayIndex}_e${eventIndex}${COST_KEY_SUFFIX}`;
+
+            if (val && val.trim() !== "" && parseInt(val) >= 0) {
+                localStorage.setItem(key, val);
+            } else {
+                localStorage.removeItem(key);
+            }
+
+            renderDay(dayIndex);
+        };
+
+        // 重置當日花費
+        window.resetDailyCosts = function(dayIndex) {
+            // NOTE: 使用瀏覽器內建的 confirm() 在 iFrame 環境中可能不可見，但此處作為範例暫時保留。
+            // 建議在實際應用中替換為自定義 Modal。
+            if(!confirm("確定要重置今天的記帳數據嗎？")) return;
+            
+            const dayData = appData.days[dayIndex];
+            dayData.events.forEach((_, eIndex) => {
+                localStorage.removeItem(`trip_d${dayIndex}_e${eIndex}${COST_KEY_SUFFIX}`);
+            });
+            renderDay(dayIndex);
+        };
+    </script>
+</body>
+</html>
