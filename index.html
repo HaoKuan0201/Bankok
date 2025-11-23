@@ -483,8 +483,33 @@
             
             <!-- 按鈕控制群組 -->
             <div class="header-controls">
-                <button id="copy-data-btn" class="edit-toggle-btn" onclick="copyAppDataToClipboard()">複製數據</button>
-                <button id="edit-toggle-btn" class="edit-toggle-btn" onclick="toggleEditMode()">開啟編輯</button>
+                
+                <!-- 🚀 新增：地圖書籤連結 -->
+                <a href="https://www.google.com/maps/d/u/0/edit?mid=1pJlG73WanZkVkTSFvt3GLpMCDVU8heQ&ll=13.798196927110428%2C100.54907266665649&z=17" 
+                   target="_blank" 
+                   id="map-bookmark-btn" 
+                   class="icon-btn map-bookmark-btn" 
+                   title="查看行程地圖書籤">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M576 112C576 103.7 571.7 96 564.7 91.6C557.7 87.2 548.8 86.8 541.4 90.5L416.5 152.1L244 93.4C230.3 88.7 215.3 89.6 202.1 95.7L77.8 154.3C69.4 158.2 64 166.7 64 176L64 528C64 536.2 68.2 543.9 75.1 548.3C82 552.7 90.7 553.2 98.2 549.7L225.5 489.8L396.2 546.7C409.9 551.3 424.7 550.4 437.8 544.2L562.2 485.7C570.6 481.7 576 473.3 576 464L576 112zM208 146.1L208 445.1L112 490.3L112 191.3L208 146.1zM256 449.4L256 148.3L384 191.8L384 492.1L256 449.4zM432 198L528 150.6L528 448.8L432 494L432 198z"/></svg>
+                    </svg>
+                </a>
+                
+                <!-- 複製數據 (Clipboard Icon) -->
+                <button id="copy-data-btn" class="icon-btn copy-btn" onclick="copyAppDataToClipboard()" title="複製所有數據">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+                        <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    </svg>
+                </button>
+                
+                <!-- 開啟/結束編輯 (Pencil/Settings Icon) -->
+                <button id="edit-toggle-btn" class="icon-btn edit-toggle-btn" onclick="toggleEditMode()" title="切換編輯模式">
+                    <svg id="edit-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+                        <!-- 預設為鉛筆 icon -->
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </header>
