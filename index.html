@@ -662,7 +662,7 @@
             determineInitialDay();
             renderNavigation();
             renderDay(currentDayIndex);
-            updateEditButtonText();
+            updateEditButtonUI();
         }
         
         // 1. 自動判斷當前日期
@@ -885,15 +885,25 @@
 
         window.toggleEditMode = function() {
             isEditMode = !isEditMode;
-            updateEditButtonText();
+            updateEditButtonUI();
             renderDay(currentDayIndex);
         }
 
-        function updateEditButtonText() {
+        function updateEditButtonUI() {
             const btn = document.getElementById('edit-toggle-btn');
-            btn.textContent = isEditMode ? '結束編輯' : '開啟編輯';
-            btn.style.backgroundColor = isEditMode ? 'var(--danger)' : 'var(--accent-color)';
-            btn.style.color = isEditMode ? 'white' : 'var(--primary-color)';
+            const iconElement = document.getElementById('edit-icon');
+
+            if (isEditMode) {
+                btn.classList.add('active');
+                btn.title = '結束編輯模式';
+                // 切換為 Save/Check 圖標 (表示進入編輯/保存狀態)
+                iconElement.innerHTML = `<path d="M5 12l5 5l8-8"/>`; 
+            } else {
+                btn.classList.remove('active');
+                btn.title = '切換編輯模式';
+                // 切換回 Pencil 圖標
+                iconElement.innerHTML = `<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>`;
+            }
         }
         
         // 打開編輯/新增 Modal
