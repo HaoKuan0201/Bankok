@@ -121,12 +121,21 @@ body[data-theme="dark"] {
 
         /* Navigation */
         .day-nav {
+               transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);   /* 超順滑動畫 */
+        transform: translateY(0);
             background-color: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: sticky;
             top: 86px; /* Adjust based on header height approx */
             z-index: 99;
         }
+
+.day-nav.hide {
+        transform: translateY(-100%);
+    }
+    .day-nav.show {
+        transform: translateY(0);
+    }
 
         .nav-container {
             display: flex;
