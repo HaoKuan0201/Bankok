@@ -673,6 +673,26 @@
             `;
         }
     }
+
+        // === 日期導航欄 滾動向上自動隱藏（超順滑）===
+    let lastScrollY = window.scrollY;
+    const dayNav = document.querySelector('.day-nav');
+
+    window.addEventListener('scroll', () => {
+        const currentScrollY = window.scrollY;
+        
+        if (currentScrollY > lastScrollY && currentScrollY > 150) {
+            // 往下滾 → 隱藏導航欄
+            dayNav.classList.remove('show');
+            dayNav.classList.add('hide');
+        } else if (currentScrollY < lastScrollY) {
+            // 往上滾 → 顯示導航欄
+            dayNav.classList.remove('hide');
+            dayNav.classList.add('show');
+        }
+        
+        lastScrollY = currentScrollY;
+    });
     </script>
 </body>
 </html>
