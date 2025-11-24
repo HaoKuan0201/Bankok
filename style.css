@@ -32,7 +32,7 @@ body[data-theme="dark"] {
         --card-bg: #181a1b;          /* 卡片背景 */
         --text-main: #c8c3bc;        /* 主要文字 */
         --text-light: #9c9386;       /* 淡文字 */
-        --header-bg: #1a1a1a;
+        --header-bg: #2C3E50;
 
         --trans-walk: #219251;
         --trans-bts: #226a99;
@@ -286,7 +286,7 @@ body[data-theme="dark"] {
             font-size: 1.15rem;
             font-weight: 600;
             line-height: 1.4;
-            color: #2c3e50;
+            color: var(--primary-color);
             /* margin-bottom: 12px; (Removed) */
         }
 
