@@ -24,7 +24,7 @@
                 <!-- 在 .header-controls 裡面，放在 edit-toggle-btn 前面或後面都可以 -->
 <button id="theme-toggle-btn" class="icon-btn theme-toggle-btn" title="切換深色/淺色主題">
     <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- 預設顯示月亮（代表目前是暗色） -->
+        <!-- 預設顯示月亮 = 深色模式 -->
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
     </svg>
 </button>
@@ -636,31 +636,30 @@
             renderDay(dayIndex);
         };
 
-        // === 主題切換功能（預設深色）===
+        // 主題切換（預設深色）
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const themeIcon = document.getElementById('theme-icon');
-    const BODY = document.body;
 
-    // 讀取上次儲存的主題，或預設為 dark
+    // 讀取上次選擇，沒有的話預設 deep dark
     const savedTheme = localStorage.getItem('theme') || 'dark';
-    BODY.setAttribute('data-theme', savedTheme);
+    document.body.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
 
     themeToggleBtn.addEventListener('click', () => {
-        const currentTheme = BODY.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        BODY.setAttribute('data-theme', newTheme);
+        const current = document.body.getAttribute('data-theme');
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+        
+        document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         updateThemeIcon(newTheme);
     });
 
     function updateThemeIcon(theme) {
         if (theme === 'dark') {
-            // 月亮圖示（深色模式）
+            // 月亮 = 深色
             themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
         } else {
-            // 太陽圖示（淺色模式）
+            // 太陽 = 淺色
             themeIcon.innerHTML = `
                 <circle cx="12" cy="12" r="5"/>
                 <line x1="12" y1="1" x2="12" y2="3"/>
