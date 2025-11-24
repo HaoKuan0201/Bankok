@@ -25,33 +25,43 @@
             --success: #2ECC71;
         }
 
-/* 深色主題 */
-        [data-theme="dark"] {
-            --primary-color: #ECD38C;   /* 金色主色（在暗底很好看） */
-            --accent-color: #F1C40F;
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #e0e0e0;
-            --text-light: #bbbbbb;
-            --header-bg: #1a1a1a;
-            
-            /* 讓原本的淺灰背景變深 */
-            background-color: var(--bg-color);
-            color: var(--text-main);
-        }
+body[data-theme="dark"] {
+        --primary-color: #d1dde6;     /* 主文字色（原 #2C3E50） */
+        --accent-color: #f2ca27;     /* 強調色（金黃） */
+        --bg-color: #1a2124;         /* 整體背景 */
+        --card-bg: #181a1b;          /* 卡片背景 */
+        --text-main: #c8c3bc;        /* 主要文字 */
+        --text-light: #9c9386;       /* 淡文字 */
+        --header-bg: #1a1a1a;
 
-        /* 深色模式下一些元件微調 */
-        [data-theme="dark"] .app-header { background-color: var(--header-bg); }
-        [data-theme="dark"] .day-nav { background-color: #1e1e1e; }
-        [data-theme="dark"] .nav-btn { background: #2d2d2d; border-color: #444; color: #ddd; }
-        [data-theme="dark"] .nav-btn.active { background-color: var(--primary-color); color: #000; }
-        [data-theme="dark"] .event-card { background: var(--card-bg); border-color: #333; }
-        [data-theme="dark"] .cost-section { background-color: #2a2a2a; border-color: #444; color: #ddd; }
-        [data-theme="dark"] .daily-summary { background: linear-gradient(135deg, #2c2c2c, #1a1a1a); }
-        [data-theme="dark"] .highlight { background-color: #5D3A00; color: #FFD700; }
-        [data-theme="dark"] .modal-content { background: #1e1e1e; color: #e0e0e0; }
-        [data-theme="dark"] .form-group input,
-        [data-theme="dark"] .form-group textarea { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
+        --trans-walk: #219251;
+        --trans-bts: #226a99;
+        --trans-boat: #138d75;
+        --trans-car: #9d2f23;
+        --danger: #e95849;
+        --success: #25a45b;
+    }
+
+    /* 確保所有元件都跟著變 */
+    body[data-theme="dark"] { background: var(--bg-color); color: var(--text-main); }
+    body[data-theme="dark"] .app-header { background: var(--header-bg); }
+    body[data-theme="dark"] .day-nav { background: #1e1e1e; }
+    body[data-theme="dark"] .nav-btn { background: #2a2a2a; border-color: #444; color: #ccc; }
+    body[data-theme="dark"] .nav-btn.active { background: var(--accent-color); color: #000; }
+    body[data-theme="dark"] .event-card { background: var(--card-bg); border-color: #333; }
+    body[data-theme="dark"] .event-time { background: #2a2a2a; }
+    body[data-theme="dark"] .cost-section { background: #222; border-color: #444; color: #ddd; }
+    body[data-theme="dark"] .daily-summary { background: linear-gradient(135deg, #222, #111); }
+    body[data-theme="dark"] .highlight { background: #5D3A00; color: #FFD700; }
+    body[data-theme="dark"] .modal-content { background: #1e1e1e; color: #e0e0e0; }
+    body[data-theme="dark"] .form-group input,
+    body[data-theme="dark"] .form-group textarea {
+        background: #222; border-color: #444; color: #e0e0e0;
+    }
+    body[data-theme="dark"] .trans-walk { background: var(--trans-walk); }
+    body[data-theme="dark"] .trans-bts { background: var(--trans-bts); }
+    body[data-theme="dark"] .trans-boat { background: var(--trans-boat); }
+    body[data-theme="dark"] .trans-car { background: var(--trans-car); }
 
         body {
             background-color: var(--bg-color);
