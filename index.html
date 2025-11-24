@@ -693,6 +693,19 @@
         
         lastScrollY = currentScrollY;
     });
+
+        // === 點擊日期導航欄 → 平滑滾動到頁面頂部 ===
+    document.querySelector('.day-nav').addEventListener('click', (e) => {
+        // 只在點擊到 .day-nav 本身的空白處才觸發（避免點按鈕時也跳頂）
+        if (e.target === document.querySelector('.day-nav') || 
+            e.target.closest('.nav-container')) {
+            
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    });
     </script>
 </body>
 </html>
