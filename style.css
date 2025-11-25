@@ -111,12 +111,9 @@ body {
 
 /* Specific style for copy button */
 #copy-data-btn {
-    background-color: #95a5a6; /* 淺灰 */
-    color: white;
 }
     
 #copy-data-btn:hover {
-    background-color: #7f8c8d;
 }
 
 /* Navigation */
@@ -872,6 +869,7 @@ body[data-theme="dark"] .highlight {
 .more-menu-dropdown .icon-btn:hover {
     background-color: #f0f0f0;
     color: var(--text-main, #333);
+    cursor: pointer;
 }
 
 /* 確保暗色模式下的按鈕文字顏色不會受影響 */
