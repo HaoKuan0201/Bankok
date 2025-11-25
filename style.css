@@ -486,7 +486,7 @@ body[data-theme="dark"] .floor-section {
 .floor-title {
     font-size: 1.1em;
     font-weight: bold;
-    color: var(--primary-color); 
+    color: var(--text-main); 
     margin-top: 0;
     margin-bottom: 8px;
     padding-bottom: 5px;
