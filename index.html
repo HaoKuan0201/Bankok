@@ -10,67 +10,102 @@
 </head>
 <body>
 
-    <!-- 頂部標題 -->
-    <header class="app-header">
-        <div class="header-top">
-            <div class="header-titles">
-                <h1>曼谷五日自由行</h1>
-                <p class="subtitle">11/27 (四) - 12/1 (一)</p>
-            </div>
-            
-            <!-- 按鈕控制群組 -->
-            <div class="header-controls">
+    HTML<!-- 頂部標題 -->
+<header class="app-header">
+    <div class="header-top">
+        <div class="header-titles">
+            <h1>曼谷五日自由行</h1>
+            <p class="subtitle">11/27 (四) - 12/1 (一)</p>
+        </div>
+        
+        <!-- 按鈕控制群組 -->
+        <div class="header-controls">
 
-<!-- 重新從伺服器載入原始資料 -->
-<button id="reload-server-data-btn" class="icon-btn reload-server-btn" title="讀取伺服器資料">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap=" german" stroke-linejoin="round">
-        <path d="M23 4v6h-6"></path>
-        <path d="M1 20v-6h6"></path>
-        <path d="M20.49 9A9 9 0 0 0 5.51 9"></path>
-        <path d="M3.51 15A9 9 0 0 0 18.49 15"></path>
-    </svg>
-</button>
-                
-                <!-- 在 .header-controls 裡面，放在 edit-toggle-btn 前面或後面都可以 -->
-<button id="theme-toggle-btn" class="icon-btn theme-toggle-btn" title="切換深色/淺色主題">
-    <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <!-- 預設顯示月亮 = 深色模式 -->
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-    </svg>
-</button>
-                
-                <!-- 🚀 新增：地圖書籤連結 -->
-                <a href="https://www.google.com/maps/d/u/0/edit?mid=1pJlG73WanZkVkTSFvt3GLpMCDVU8heQ&ll=13.798196927110428%2C100.54907266665649&z=17" 
-                   target="_blank" 
-                   id="map-bookmark-btn" 
-                   class="icon-btn map-bookmark-btn" 
-                   title="查看行程地圖書籤">
-                    <!-- 新的地圖 (Folded Map) 圖標 -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
-                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                        <line x1="16" x2="16" y1="2" y2="22"/>
-                        <line x1="8" x2="8" y1="2" y2="18"/>
-                    </svg>
-                </a>
-                
-                <!-- 複製數據 (Clipboard Icon) -->
-                <button id="copy-data-btn" class="icon-btn copy-btn" onclick="copyAppDataToClipboard()" title="複製所有數據">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
-                        <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                    </svg>
-                </button>
-                
-                <!-- 開啟/結束編輯 (Pencil/Settings Icon) -->
-                <button id="edit-toggle-btn" class="icon-btn edit-toggle-btn" onclick="toggleEditMode()" title="切換編輯模式">
-                    <svg id="edit-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
-                        <!-- 預設為鉛筆 icon -->
-                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+            <!-- 1. TDAC QR code 按鈕（新功能） -->
+            <button id="tdac-qr-btn" class="icon-btn" title="TDAC QR code">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="6" height="6" x="3" y="3"/>
+                    <rect width="6" height="6" x="15" y="3"/>
+                    <rect width="6" height="6" x="3" y="15"/>
+                    <path d="M9 9h6v6H9z"/>
+                </svg>
+            </button>
+
+            <!-- 這兩個永遠顯示 -->
+            <a href="https://www.google.com/maps/d/u/0/edit?mid=1pJlG73WanZkVkTSFvt3GLpMCDVU8heQ&ll=13.798196927110428%2C100.54907266665649&z=17" 
+               target="_blank" 
+               id="map-bookmark-btn" 
+               class="icon-btn map-bookmark-btn" 
+               title="查看行程地圖書籤">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                    <line x1="16" x2="16" y1="2" y2="22"/>
+                    <line x1="8" x2="8" y1="2" y2="18"/>
+                </svg>
+            </a>
+
+            <button id="edit-toggle-btn" class="icon-btn edit-toggle-btn" onclick="toggleEditMode()" title="切換編輯模式">
+                <svg id="edit-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                </svg>
+            </button>
+
+            <!-- 2. 其餘按鈕收進「…」下拉選單 -->
+            <div class="more-menu-wrapper">
+                <button id="more-menu-btn" class="icon-btn" title="更多功能">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="2"/>
+                        <circle cx="19" cy="12" r="2"/>
+                        <circle cx="5" cy="12" r="2"/>
                     </svg>
                 </button>
+
+                <div id="more-menu" class="more-menu">
+                    <button id="reload-server-data-btn" class="menu-item icon-btn reload-server-btn" title="讀取伺服器資料">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M20.49 9A9 9 0 0 0 5.51 9"></path>
+                            <path d="M3.51 15A9 9 0 0 0 18.49 15"></path>
+                        </svg>
+                        <span>重新載入伺服器資料</span>
+                    </button>
+
+                    <button id="theme-toggle-btn" class="menu-item icon-btn theme-toggle-btn" title="切換深色/淺色主題">
+                        <svg id="theme-icon-menu" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                        <span>切換主題</span>
+                    </button>
+
+                    <button id="copy-data-btn" class="menu-item icon-btn copy-btn" onclick="copyAppDataToClipboard()" title="複製所有數據">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                        </svg>
+                        <span>複製所有資料</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </header>
+    </div>
+</header>
+
+<!-- TDAC QR code 彈窗 -->
+<div id="tdac-modal" class="tdac-modal">
+    <div class="tdac-modal-content">
+        <span class="tdac-close">&times;</span>
+        <h3>TDAC QR Code</h3>
+        <div class="tdac-options">
+            <button data-img="tdac_我.png">我</button>
+            <button data-img="tdac_媽.png">媽</button>
+            <button data-img="tdac_妹.png">妹</button>
+        </div>
+        <div class="tdac-image-container">
+            <img id="tdac-qr-image" src="" alt="TDAC QR Code">
+        </div>
+    </div>
+</div>
     
     <!-- Toast 通知欄 -->
     <div id="toast-notification"></div>
@@ -831,6 +866,40 @@ ${notesHTML}
         showToast('✅ 已成功從伺服器重新載入原始行程！');
         setTimeout(() => location.reload(), 1200);   // 稍微延遲讓 toast 能看到
     });
+
+        // === TDAC QR code 彈窗功能 ===
+const tdacModal = document.getElementById('tdac-modal');
+const tdacBtn = document.getElementById('tdac-qr-btn');
+const tdacClose = document.querySelector('.tdac-close');
+const tdacOptions = document.querySelectorAll('.tdac-options button');
+const tdacImage = document.getElementById('tdac-qr-image');
+
+tdacBtn.onclick = () => tdacModal.classList.add('visible');
+tdacClose.onclick = () => tdacModal.classList.remove('visible');
+tdacModal.onclick = (e) => {
+    if (e.target === tdacModal) tdacModal.classList.remove('visible');
+};
+
+tdacOptions.forEach(btn => {
+    btn.onclick = () => {
+        const imgName = btn.getAttribute('data-img');
+        tdacImage.src = imgName;   // 圖片放在同目錄下
+        tdacImage.alt = imgName;
+    };
+});
+
+// === 更多功能「…」下拉選單 ===
+document.getElementById('more-menu-btn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('more-menu').classList.toggle('show');
+});
+
+// 點到外面就關閉
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.more-menu-wrapper')) {
+        document.getElementById('more-menu').classList.remove('show');
+    }
+});
     </script>
 </body>
 </html>
