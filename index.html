@@ -574,26 +574,42 @@ ${notesHTML}
 
     let html = '<ul>'; // 使用無序列表來包裹所有內容
 
+    // 獨立出來的函數，用於執行高亮邏輯
+    const applyHighlighting = (item) => {
+        let itemHtml = item;
+
+        // 1. 對 ( ) 內容做高亮
+        // 找到所有被括號包裹的內容，並用 <span class="highlight-parentheses"> 包裹
+        itemHtml = itemHtml.replace(/(\([^)]+\))/g, (match) => {
+            // 使用 highlight-parentheses class
+            return `<span class="highlight-parentheses">${match}</span>`;
+        });
+
+        // 2. 對數字、價格、百分比做高亮 (例如: 100, 50%, 3個)
+        // 使用 price-info class
+        itemHtml = itemHtml.replace(/(\b\d+[\s%個]*)/g, (match) => {
+            return `<span class="price-info">${match}</span>`;
+        });
+
+        return itemHtml;
+    };
+
+
     lines.forEach(line => {
-        // *** 核心修改：不再使用樓層正則表達式，改用 indexOf 找第一個 '-' 符號 ***
+        // 核心修改：使用 indexOf 找第一個 '-' 符號
         const separatorIndex = line.indexOf('-');
 
         // 判斷是否有 `-` 且 `-` 後面有內容 (或前面內容不是純空)
         if (separatorIndex !== -1 && (separatorIndex > 0 || separatorIndex < line.length - 1)) {
             // 匹配成功：這是一行 "Title - Content" 結構的內容
 
-            // title 為分隔符 '-' 之前的部分
             const floorTitle = line.substring(0, separatorIndex).trim();
-            // content 為分隔符 '-' 之後的部分
             const content = line.substring(separatorIndex + 1).trim();
 
-            // *** 保留原始的 class names 和結構 ***
-            // 原版結構: <li class="floor-section"><h3 class="floor-title">...</h3><ul class="floor-content-list">...</ul></li>
-
-            // 開始新的列表項，並使用 <h3> 作為樓層標題，使其更突出
+            // 開始新的列表項，並使用 <h3> 作為樓層標題
             html += `
                 <li class="floor-section">
-                    <h3 class="floor-title">📍 ${floorTitle}</h3>
+                    <h3 class="floor-title">✨ ${floorTitle}</h3>
                     <ul class="floor-content-list">
             `;
 
@@ -601,20 +617,19 @@ ${notesHTML}
             const contentItems = content.split(/、(?![^(]*\))|, (?![^(]*\))/).map(item => item.trim()).filter(item => item.length > 0);
 
             contentItems.forEach(item => {
-                // 保留原版價格資訊高亮邏輯，但為了通用性，使用更穩健的高亮方式
-                const itemHtml = item.replace(/(\([^)]+\))|(\b\d+[\s%個]*)/g, (match) => {
-                    return `<span class="price-info">${match}</span>`;
-                });
+                // 對分割後的子項目套用高亮
+                const itemHtml = applyHighlighting(item);
                 html += `<li>${itemHtml}</li>`;
             });
 
             html += `</ul></li>`;
 
         } else if (line.length > 0) {
-            // 匹配失敗：這是一行獨立的內容（沒有明顯的 title - content 結構）
-            // 例如: "抵達後先去換匯"、"有免費廁所"
-            // 保留原版的 misc-item class
-            html += `<li class="misc-item">⭐ ${line}</li>`;
+            // 匹配失敗：這是一行獨立的內容
+            
+            const lineHtml = applyHighlighting(line);
+
+            html += `<li class="floor-title"><h3>✨${lineHtml}</h3></li>`;
         }
     });
 
