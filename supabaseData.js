@@ -109,6 +109,8 @@ async function saveTripData(newTripJson) {
         json_data: newTripJson, // 儲存整個行程物件
     };
 
+console.log(dataToUpsert);
+    
     // 使用 upsert，如果 title 存在，則更新，舊資料會被 Trigger 移到 Log 表。
     const { data, error } = await supabaseClient
         .from(TARGET_TABLE)
