@@ -63,4 +63,4 @@
     }
 
     // 頁面載入後執行
-    document.addEventListener('DOMContentLoaded', fetchTripData);
+   window.loadRemoteData = fetchTripData;
