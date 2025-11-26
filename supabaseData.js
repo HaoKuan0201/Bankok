@@ -111,13 +111,11 @@ async function saveTripData(newTripJson) {
 
 console.log(dataToUpsert);
     
-    // 使用 upsert，如果 title 存在，則更新，舊資料會被 Trigger 移到 Log 表。
     const { data, error } = await supabaseClient
         .from(TARGET_TABLE)
-        .upsert(dataToUpsert, { 
-            onConflict: 'title', // 根據 title 欄位判斷是否為衝突/更新
-            ignoreDuplicates: false // 確保執行更新或插入
-        });
+        .update(dataToUpdate)
+        .eq('title', currentTitle) // 🔑 確保 title 匹配目標行
+        .select();
 
     if (error) {
         console.error('儲存至 Supabase 失敗:', error.message);
