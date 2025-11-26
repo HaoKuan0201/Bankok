@@ -1,3 +1,9 @@
+/*
+ * ----------------------------------------------------
+ * 1. Reset & Base Styles & Theme Variables
+ * ----------------------------------------------------
+ */
+
 /* Reset & Base Styles */
 * {
     box-sizing: border-box;
@@ -14,6 +20,7 @@
     --card-bg: #FFFFFF;
     --text-main: #333333;
     --text-light: #7F8C8D;
+    --border-color: #ccc;
     
     /* Transport Colors */
     --trans-walk: #27AE60; /* 綠色 */
@@ -25,6 +32,17 @@
     --success: #2ECC71;
 }
 
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    padding-bottom: 60px; /* Space for footer/scroll */
+}
+
+/* ----------------------------------------------------
+ * 2. Dark Mode Theme Variables & Overrides
+ * ----------------------------------------------------
+ */
+
 body[data-theme="dark"] {
     --primary-color: #d1dde6;  /* 主文字色（原 #2C3E50） */
     --accent-color: #f2ca27;   /* 強調色（金黃） */
@@ -32,7 +50,8 @@ body[data-theme="dark"] {
     --card-bg: #262a2b;        /* 卡片背景 */
     --text-main: #d1dde6;      /* 主要文字 */
     --text-light: #ffffff;     /* 淡文字 */
-    --header-bg: #2C3E50;
+    --header-bg: #2C3E50;      /* Header 背景 */
+    --border-color: #444;      /* 邊框顏色 */
 
     --trans-walk: #219251;
     --trans-bts: #226a99;
@@ -43,7 +62,10 @@ body[data-theme="dark"] {
 }
 
 /* 確保所有元件都跟著變 */
-body[data-theme="dark"] { background: var(--bg-color); color: var(--text-main); }
+body[data-theme="dark"] { 
+    background: var(--bg-color); 
+    color: var(--text-main); 
+}
 body[data-theme="dark"] .app-header { background: var(--header-bg); }
 body[data-theme="dark"] .day-nav { background: #1e1e1e; }
 body[data-theme="dark"] .nav-btn { background: #2c3e50; border-color: #444; color: #ccc; }
@@ -63,11 +85,11 @@ body[data-theme="dark"] .trans-bts { background: var(--trans-bts); }
 body[data-theme="dark"] .trans-boat { background: var(--trans-boat); }
 body[data-theme="dark"] .trans-car { background: var(--trans-car); }
 
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    padding-bottom: 60px; /* Space for footer/scroll */
-}
+
+/* ----------------------------------------------------
+ * 3. Header & Navigation (Fixed/Sticky Elements)
+ * ----------------------------------------------------
+ */
 
 /* Header */
 .app-header {
@@ -86,7 +108,6 @@ body {
     align-items: center;
 }
     
-/* New: Button Group for Header */
 .header-controls {
     display: flex;
     gap: 10px;
@@ -109,20 +130,9 @@ body {
     font-weight: 500;
 }
 
-/* Specific style for copy button */
-#copy-data-btn {
-}
-    
-#copy-data-btn:hover {
-}
-
-.schedule-container, .day-nav {
-    transition: opacity 0.2s ease, transform 0.25s ease;
-}
-
-/* Navigation */
+/* Navigation Container */
 .day-nav {
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);  /* 超順滑動畫 */
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); /* 超順滑動畫 */
     transform: translateY(0);
     background-color: white;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -171,18 +181,152 @@ body {
     box-shadow: 0 2px 4px rgba(44, 62, 80, 0.2);
 }
 
+
+/* ----------------------------------------------------
+ * 4. Icon Buttons & Dropdown Menus
+ * ----------------------------------------------------
+ */
+
+/* Icon Button Base Styles */
+.icon-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+    color: white;
+    flex-shrink: 0; /* 防止圖標被壓縮 */
+}
+
+/* Specific button styles */
+.map-bookmark-btn {
+    background-color: #3498db; /* 藍色 */
+    text-decoration: none; /* 移除 a 標籤底線 */
+}
+
+.map-bookmark-btn:hover {
+    background-color: #2980b9;
+}
+
+.edit-toggle-btn {
+    background-color: var(--accent-color);
+    color: #2C3E50;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+    
+.edit-toggle-btn:hover {
+    background-color: #f39c12;
+    transform: translateY(-1px);
+}
+    
+/* 編輯模式開啟時的狀態 */
+.edit-toggle-btn.active {
+    background-color: var(--danger);
+    border-color: var(--danger);
+    color: white;
+}
+
+.edit-toggle-btn.active:hover {
+    background-color: #c0392b;
+}
+
+/* More Menu Dropdown */
+.more-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+.more-menu-dropdown {
+    display: none; /* 預設隱藏 */
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--card-bg); /* 配合變數或預設白 */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 8px;
+    min-width: 160px;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.more-menu-dropdown.show {
+    display: flex;
+}
+
+/* 下拉選單內的按鈕樣式調整 */
+.more-menu-dropdown .icon-btn {
+    width: 100%;
+    border-radius: 4px;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    font-size: 14px;
+    height: auto;
+    /* 💡 修正：使用主要文字色 */
+    color: var(--text-main); 
+    background-color: transparent; /* 保持按鈕背景透明 */
+}
+
+.more-menu-dropdown .icon-btn:hover {
+    background-color: #f0f0f0;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+/* Dark Mode adjustment for dropdown buttons */
+body[data-theme="dark"] .more-menu-dropdown .icon-btn {
+    color: var(--text-main); /* 暗色模式下: #d1dde6 */
+    background-color: transparent;
+}
+
+body[data-theme="dark"] .more-menu-dropdown .icon-btn:hover {
+    background-color: #333;
+}
+        
+.more-menu-dropdown .icon-btn svg {
+    margin-right: 8px;
+}
+
+/* 複製按鈕 */
+.copy-btn {
+    background-color: #95a5a6;
+}
+    
+.copy-btn:hover {
+    background-color: #7f8c8d;
+}
+
+/* ----------------------------------------------------
+ * 5. Schedule & Timeline Layout
+ * ----------------------------------------------------
+ */
+
 #swipe-container {
-    overflow: hidden;           /* 禁止上下彈性滾動 */
+    overflow: hidden;             /* 禁止上下彈性滾動 */
     height: 100%;
-    touch-action: pan-y;        /* 允許上下滾動，禁止左右被系統攔截 */
+    touch-action: pan-y;          /* 允許上下滾動，禁止左右被系統攔截 */
     -webkit-overflow-scrolling: touch;
 }
 
-/* Timeline & Cards */
 .schedule-container {
     padding: 20px 15px;
     max-width: 600px;
     margin: 0 auto;
+    transition: opacity 0.2s ease, transform 0.25s ease;
 }
 
 .day-theme {
@@ -212,6 +356,11 @@ body {
     margin-left: 10px;
 }
 
+/* ----------------------------------------------------
+ * 6. Event Card & Details
+ * ----------------------------------------------------
+ */
+
 .event-card {
     background: var(--card-bg);
     border-radius: 12px;
@@ -238,6 +387,25 @@ body {
     z-index: 1;
 }
 
+/* Completed State */
+.event-card.completed {
+    background-color: #fcfcfc;
+    border-color: #eee;
+    box-shadow: none;
+}
+    
+.event-card.completed::before {
+    background-color: #bdc3c7;
+    box-shadow: none;
+}
+    
+.event-card.completed .event-location,
+.event-card.completed .event-time,
+.event-card.completed .badge {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
 /* Event Header */
 .event-header {
     display: flex;
@@ -255,43 +423,6 @@ body {
     border-radius: 4px;
 }
 
-.checkbox-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-}
-
-.checkbox-wrapper input[type="checkbox"] {
-    transform: scale(1.5);
-    cursor: pointer;
-    accent-color: var(--trans-walk);
-}
-
-/* Edit/Delete Icons */
-.edit-controls {
-    display: flex;
-    gap: 10px;
-}
-
-.edit-controls button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.edit-controls button:hover {
-    opacity: 1;
-}
-
-.edit-icon { color: var(--primary-color); }
-.delete-icon { color: var(--danger); }
-
-/* New: Location Group and Map Icon */
 .event-location-group {
     display: flex;
     align-items: center;
@@ -304,14 +435,23 @@ body {
     font-weight: 600;
     line-height: 1.4;
     color: var(--primary-color);
-    /* margin-bottom: 12px; (Removed) */
 }
 
+.event-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+/* Map & Note Icons */
 .map-icon {
     color: var(--primary-color);
     transition: color 0.2s;
     flex-shrink: 0;
-    display: block; /* Ensure it takes up space */
+    display: block; 
 }
     
 .map-icon:hover {
@@ -328,17 +468,6 @@ body {
     
 .note-icon:hover {
     color: var(--accent-color);
-}
-
-/* Event Body */
-
-.event-details {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-    align-items: center;
 }
 
 /* Transport Badges */
@@ -358,7 +487,7 @@ body {
 .trans-boat, .trans-ferry { background-color: var(--trans-boat); }
 .trans-bolt, .trans-car, .trans-bus, .trans-包車 { background-color: var(--trans-car); }
 
-/* Cost Section */
+/* Cost Section (for expense tracking) */
 .cost-section {
     background-color: #f8f9fa;
     padding: 4px 10px;
@@ -383,6 +512,57 @@ body {
     border-radius: 4px;
     outline: none;
 }
+
+/* ----------------------------------------------------
+ * 7. Edit Controls & Add Button
+ * ----------------------------------------------------
+ */
+
+/* Edit/Delete Icons */
+.edit-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-controls button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.edit-controls button:hover {
+    opacity: 1;
+}
+
+.edit-icon { color: var(--primary-color); }
+.delete-icon { color: var(--danger); }
+
+/* Add Event Button */
+.add-event-btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    background-color: var(--success);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.add-event-btn:hover {
+    background-color: #27AE60;
+}
+
+/* ----------------------------------------------------
+ * 8. Notes & Structured Content Styles
+ * ----------------------------------------------------
+ */
 
 .notes-container {
     margin-top: 10px;
@@ -537,6 +717,7 @@ body[data-theme="dark"] .price-info {
     color: #ffd700; 
 }
 
+/* 括號內容高亮 */
 .highlight-parentheses {
     color: #0040ff;
 }
@@ -561,7 +742,6 @@ body[data-theme="dark"] .misc-item {
     border-left: 3px solid #555;
 }
 
-
 /* 舊的 highlight 樣式 (用於次要關鍵字高亮) */
 .highlight {
     background-color: #fff9c4; /* 淺黃底 */
@@ -577,27 +757,11 @@ body[data-theme="dark"] .highlight {
     color: #FFD700; 
 }
 
+/* ----------------------------------------------------
+ * 9. Daily Summary
+ * ----------------------------------------------------
+ */
 
-/* Completed State */
-.event-card.completed .event-location,
-.event-card.completed .event-time,
-.event-card.completed .badge {
-    text-decoration: line-through;
-    opacity: 0.6;
-}
-    
-.event-card.completed {
-    background-color: #fcfcfc;
-    border-color: #eee;
-    box-shadow: none;
-}
-    
-.event-card.completed::before {
-    background-color: #bdc3c7;
-    box-shadow: none;
-}
-
-/* Daily Summary */
 .daily-summary {
     background: linear-gradient(135deg, var(--primary-color), #34495e);
     color: white;
@@ -636,89 +800,12 @@ body[data-theme="dark"] .highlight {
     background: rgba(255,255,255,0.2);
 }
 
-/* Add Event Button */
-.add-event-btn {
-    display: block;
-    width: 100%;
-    padding: 15px;
-    margin-top: 20px;
-    background-color: var(--success);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.add-event-btn:hover {
-    background-color: #27AE60;
-}
+/* ----------------------------------------------------
+ * 10. Modals (Edit & QR Code)
+ * ----------------------------------------------------
+ */
 
-/* 🚀 Icon Button Styles */
-.icon-btn {
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    border-radius: 50%;
-    transition: background-color 0.2s, color 0.2s;
-    color: white;
-    flex-shrink: 0; /* 防止圖標被壓縮 */
-}
-
-/* 複製按鈕 (預設為灰色背景) */
-.copy-btn {
-    background-color: #95a5a6;
-}
-    
-.copy-btn:hover {
-    background-color: #7f8c8d;
-}
-    
-/* 地圖書籤按鈕 */
-.map-bookmark-btn {
-    background-color: #3498db; /* 藍色 */
-    text-decoration: none; /* 移除 a 標籤底線 */
-}
-
-.map-bookmark-btn:hover {
-    background-color: #2980b9;
-}
-
-.edit-toggle-btn {
-    background-color: var(--accent-color);
-    color: #2C3E50;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    white-space: nowrap;
-}
-    
-.edit-toggle-btn:hover {
-    background-color: #f39c12;
-    transform: translateY(-1px);
-}
-    
-/* 編輯模式開啟時的狀態 */
-.edit-toggle-btn.active {
-    background-color: var(--danger);
-    border-color: var(--danger);
-    color: white;
-}
-
-.edit-toggle-btn.active:hover {
-    background-color: #c0392b;
-}
-
-/* --- Editing Modal/Form --- */
+/* Edit Modal Base */
 .edit-modal {
     position: fixed;
     top: 0;
@@ -763,6 +850,7 @@ body[data-theme="dark"] .highlight {
     text-align: center;
 }
 
+/* Form Groups */
 .form-group {
     margin-bottom: 15px;
 }
@@ -788,6 +876,7 @@ body[data-theme="dark"] .highlight {
     border-color: var(--accent-color);
 }
 
+/* Form Buttons */
 .button-group {
     display: flex;
     justify-content: flex-end;
@@ -813,8 +902,58 @@ body[data-theme="dark"] .highlight {
     background-color: var(--danger);
     color: white;
 }
+
+/* QR Code Modal Specific Styles */
+.qr-modal-content {
+    text-align: center;
+    max-width: 400px; /* 限制寬度 */
+}
     
-/* Toast Notification */
+.qr-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.qr-person-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--primary-color);
+    background: transparent;
+    color: var(--text-main);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.qr-person-btn.active {
+    background-color: #2c3e50;
+    color: white;
+}
+
+.qr-image-container {
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fff;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-image-container img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ----------------------------------------------------
+ * 11. Toast Notification
+ * ----------------------------------------------------
+ */
+
 #toast-notification {
     position: fixed;
     top: 100px; /* Below the header */
@@ -835,110 +974,3 @@ body[data-theme="dark"] .highlight {
     opacity: 1;
     transform: translateY(0);
 }
-
-/* --- 新增：更多功能下拉選單樣式 --- */
-        .more-menu-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .more-menu-dropdown {
-            display: none; /* 預設隱藏 */
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background-color: var(--card-bg, #fff); /* 配合變數或預設白 */
-            border: 1px solid var(--border-color, #ccc);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 8px;
-            min-width: 160px;
-            z-index: 1000;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .more-menu-dropdown.show {
-            display: flex;
-        }
-
-        /* 下拉選單內的按鈕樣式調整 */
-        .more-menu-dropdown .icon-btn {
-    width: 100%;
-    border-radius: 4px;
-    justify-content: flex-start;
-    padding: 8px 12px;
-    font-size: 14px;
-    height: auto;
-
-    /* 💡 修正：使用主要文字色 */
-    color: var(--text-main, #333); 
-    background-color: transparent; /* 保持按鈕背景透明 */
-}
-
-.more-menu-dropdown .icon-btn:hover {
-    background-color: #f0f0f0;
-    color: var(--text-main, #333);
-    cursor: pointer;
-}
-
-/* 確保暗色模式下的按鈕文字顏色不會受影響 */
-body[data-theme="dark"] .more-menu-dropdown .icon-btn {
-    color: var(--text-main); /* 暗色模式下: #d1dde6 */
-    background-color: transparent;
-}
-
-body[data-theme="dark"] .more-menu-dropdown .icon-btn:hover {
-    background-color: #333;
-}
-        
-        .more-menu-dropdown .icon-btn svg {
-            margin-right: 8px;
-        }
-
-        /* --- 新增：QR Code Modal 樣式 --- */
-        .qr-modal-content {
-            text-align: center;
-            max-width: 400px; /* 限制寬度 */
-        }
-        
-        .qr-btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .qr-person-btn {
-            padding: 8px 16px;
-            border: 1px solid var(--primary-color, #4a90e2);
-            background: transparent;
-            color: var(--text-main, #333);
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .qr-person-btn.active {
-            background-color: var(--primary-color, #4a90e2);
-            color: white;
-        }
-
-        .qr-image-container {
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 8px;
-            background: #fff;
-            min-height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .qr-image-container img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
