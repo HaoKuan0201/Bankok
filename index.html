@@ -286,23 +286,33 @@
 
         // 2. 渲染導航欄
         function renderNavigation() {
-            const navContainer = document.getElementById('nav-container');
-            navContainer.innerHTML = '';
+        const navContainer = document.getElementById('nav-container');
+        navContainer.innerHTML = '';
 
-            appData.days.forEach((dayData, index) => {
-                const btn = document.createElement('button');
-                btn.className = `nav-btn ${index === currentDayIndex ? 'active' : ''}`;
-                btn.textContent = `${dayData.day} (${dayData.date.split(' ')[0]})`;
-                btn.onclick = () => {
-                    currentDayIndex = index;
-                    updateNavState();
-                    renderDay(index);
-                };
-                navContainer.appendChild(btn);
-            });
+        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+
+        appData.days.forEach((dayData, index) => {
+            const btn = document.createElement('button');
+            btn.className = `nav-btn ${index === currentDayIndex ? 'active' : ''}`;
+
+            // 從 fullDate (YYYY-MM-DD) 取得星期幾
+            const dateObj = new Date(dayData.fullDate);
+            const month = dateObj.getMonth() + 1;
+            const date = dateObj.getDate();
+            const weekday = weekdays[dateObj.getDay()];
+
+            btn.textContent = `${dayData.day} (${month}/${date} ${weekday})`;
             
-            setTimeout(updateNavState, 100);
-        }
+            btn.onclick = () => {
+                currentDayIndex = index;
+                updateNavState();
+                renderDay(index);
+            };
+            navContainer.appendChild(btn);
+        });
+        
+        setTimeout(updateNavState, 100);
+    }
 
         function updateNavState() {
             const btns = document.querySelectorAll('.nav-btn');
@@ -315,6 +325,66 @@
                 }
             });
         }
+
+        // 新增：手機左右滑動切換日期
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const minSwipeDistance = 50; // 最小滑動距離才觸發
+
+    function handleTouchStart(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }
+
+    function handleTouchEnd(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }
+
+    function handleSwipe() {
+        const swipeDistance = touchStartX - touchEndX;
+
+        if (Math.abs(swipeDistance) < minSwipeDistance) return;
+
+        if (swipeDistance > 0) {
+            // 往左滑 → 下一天
+            if (currentDayIndex < appData.days.length - 1) {
+                currentDayIndex++;
+            }
+        } else {
+            // 往右滑 → 前一天
+            if (currentDayIndex > 0) {
+                currentDayIndex--;
+            }
+        }
+
+        // 更新畫面
+        updateNavState();
+        renderDay(currentDayIndex);
+    }
+
+    // 綁定觸控事件（整個 body 都可以滑）
+    document.body.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.body.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    // 可選：也支援滑鼠拖曳（在電腦上測試用）
+    let mouseStartX = 0;
+    document.body.addEventListener('mousedown', (e) => {
+        mouseStartX = e.screenX;
+    });
+    document.body.addEventListener('mouseup', (e) => {
+        const diff = mouseStartX - e.screenX;
+        if (Math.abs(diff) > 80) {
+            if (diff > 0 && currentDayIndex < appData.days.length - 1) {
+                currentDayIndex++;
+            } else if (diff < 0 && currentDayIndex > 0) {
+                currentDayIndex--;
+            }
+            updateNavState();
+            renderDay(currentDayIndex);
+        }
+    });
+
+    // ... 你原本剩下的所有程式碼繼續保持不變 ...
 
         // 3. 渲染當日行程
         function renderDay(dayIndex) {
