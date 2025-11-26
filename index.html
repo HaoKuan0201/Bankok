@@ -361,6 +361,11 @@
         // 更新畫面
         updateNavState();
         renderDay(currentDayIndex);
+
+        window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
     }
 
     // 改綁到專門的滑動容器，完美解決「整個畫面被拖」的問題
