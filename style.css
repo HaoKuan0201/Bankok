@@ -968,9 +968,13 @@ body[data-theme="dark"] .highlight {
     transform: translateY(-20px);
     z-index: 1001;
     font-size: 0.9rem;
-}
     
+    /* 【⭐ 修正：新增此行以防止點擊穿透 ⭐】*/
+    pointer-events: none; 
+}
+
 #toast-notification.visible {
     opacity: 1;
     transform: translateY(0);
+    /* 注意：當 Toast 顯示時，需要在 JS 中設定 toast.style.pointerEvents = 'auto'; */
 }
