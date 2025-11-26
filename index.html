@@ -1,903 +1,497 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>曼谷五日自由行</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="originalTripData.js"></script>
-</head>
-<body>
-
-    <header class="app-header">
-        <div class="header-top">
-            <div class="header-titles">
-                <h1>曼谷五日自由行</h1>
-                <p class="subtitle">11/27 (四) - 12/1 (一)</p>
-            </div>
-            
-            <div class="header-controls">
-
-                <div class="more-menu-container">
-                    <button id="more-menu-btn" class="icon-btn" onclick="toggleMoreMenu()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="19" cy="12" r="1"></circle>
-                            <circle cx="5" cy="12" r="1"></circle>
-                        </svg>
-                    </button>
-
-                    <div id="more-menu-dropdown" class="more-menu-dropdown">
-                        
-                        <button class="icon-btn" onclick="openQRModal()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="7" height="7"></rect>
-                                <rect x="14" y="3" width="7" height="7"></rect>
-                                <rect x="14" y="14" width="7" height="7"></rect>
-                                <path d="M3 14h7v7H3z"></path>
-                            </svg>
-                            TDAC QR
-                        </button>
-
-                        <button id="reload-server-data-btn" class="icon-btn reload-server-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M23 4v6h-6"></path>
-                                <path d="M1 20v-6h6"></path>
-                                <path d="M20.49 9A9 9 0 0 0 5.51 9"></path>
-                                <path d="M3.51 15A9 9 0 0 0 18.49 15"></path>
-                            </svg>
-                            重置資料
-                        </button>
-                        
-                        <button id="theme-toggle-btn" class="icon-btn theme-toggle-btn">
-                            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                            </svg>
-                            切換主題
-                        </button>
-
-                        <button id="copy-data-btn" class="icon-btn copy-btn" onclick="copyAppDataToClipboard()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                            </svg>
-                            複製數據
-                        </button>
-                    </div>
-                </div>
-                
-                <a href="https://www.google.com/maps/d/u/0/edit?mid=1pJlG73WanZkVkTSFvt3GLpMCDVU8heQ&ll=13.798196927110428%2C100.54907266665649&z=17" 
-                    target="_blank" 
-                    id="map-bookmark-btn" 
-                    class="icon-btn map-bookmark-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-                        <line x1="16" x2="16" y1="2" y2="22"/>
-                        <line x1="8" x2="8" y1="2" y2="18"/>
-                    </svg>
-                </a>
-                
-                <button id="edit-toggle-btn" class="icon-btn edit-toggle-btn" onclick="toggleEditMode()">
-                    <svg id="edit-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </header>
-    
-    <div id="toast-notification"></div>
-
-    <nav class="day-nav">
-        <div class="nav-container" id="nav-container">
-        </div>
-    </nav>
-
-    <div id="swipe-container">
-        <main id="schedule-container" class="schedule-container"></main>
-    </div>
-    
-    <div id="edit-modal" class="edit-modal">
-        <div class="modal-content">
-            <h3 id="modal-title">編輯行程</h3>
-            <form id="event-form">
-                <input type="hidden" id="event-day-index">
-                <input type="hidden" id="event-index">
-
-                <div class="form-group">
-                    <label for="event-time-input">時間 (格式: HH:MM 或 HH:MM-HH:MM)</label>
-                    <input type="text" id="event-time-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="event-location-input">地點/活動</label>
-                    <input type="text" id="event-location-input" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="event-map-url-input">地圖連結 (可選)</label>
-                    <input type="url" id="event-map-url-input">
-                </div>
-
-                <div class="form-group">
-                    <label for="event-note-url-input">備註連結 (可選，例如預訂網址)</label>
-                    <input type="url" id="event-note-url-input">
-                </div>
-
-                <div class="form-group">
-                    <label for="event-transport-input">交通方式 (例如: 步行, BTS, Bolt)</label>
-                    <input type="text" id="event-transport-input" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="event-estimated-cost-input">預估花費 (泰銖)</label>
-                    <input type="number" id="event-estimated-cost-input" value="0" min="0">
-                </div>
-                
-                <div class="form-group">
-                    <label for="event-notes-input">備註 (可選)</label>
-                    <textarea id="event-notes-input" rows="3"></textarea>
-                </div>
-
-                <div class="button-group">
-                    <button type="button" class="cancel-btn" onclick="closeEditModal()">取消</button>
-                    <button type="submit" class="save-btn">儲存</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="qr-modal" class="edit-modal">
-        <div class="modal-content qr-modal-content">
-            <h3>TDAC QR Code</h3>
-            
-            <div class="qr-btn-group">
-                <button class="qr-person-btn active" onclick="switchQR('我', this)">我</button>
-                <button class="qr-person-btn" onclick="switchQR('媽', this)">媽</button>
-                <button class="qr-person-btn" onclick="switchQR('妹', this)">妹</button>
-            </div>
-
-            <div class="qr-image-container">
-                <img id="qr-image-display" src="tdac_我.png" alt="" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NjYyIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxyZWN0IHg9IjMiIHk9IjMiIHdpZHRoPSIxOCIgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIi8+PHBhdGggZD0iTTEyIDh2OCIvPjxwYXRoIGQ9Ik04IDEybDggMCIvPjwvc3ZnPg=='">
-            </div>
-
-            <div class="button-group" style="justify-content: center;">
-                <button type="button" class="cancel-btn" onclick="closeQRModal()">關閉</button>
-            </div>
-        </div>
-    </div>
-
-<script>
-
-    // --- 數據與狀態管理 ---
-    const STORAGE_KEY = 'bangkokTripData';
-    const CHECK_KEY_SUFFIX = '_done';
-    const COST_KEY_SUFFIX = '_cost';
-
-    let appData = {};
-    let currentDayIndex = 0;
-    let isEditMode = false;
-    let mouseStartX = 0;
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const minSwipeDistance = 50;
-
-    function loadData() {
-        const storedData = localStorage.getItem(STORAGE_KEY);
-        if (storedData) {
-            try {
-                const parsedData = JSON.parse(storedData);
-                if (parsedData.days && parsedData.days.length > 0) {
-                    return parsedData;
+const originalTripData = {
+    "title": "曼谷五日自由行 (11/27 - 12/1)",
+    "days": [
+        {
+            "day": "Day 1",
+            "date": "11/27 (四)",
+            "fullDate": "2025-11-27",
+            "theme": "抵達與夜市",
+            "events": [
+                {
+                    "time": "16:05",
+                    "location": "抵達 DMK 機場",
+                    "transport": "無",
+                    "cost": "0",
+                    "notes": "已抵達曼谷",
+                    "mapURL": "https://maps.app.goo.gl/XEcdjEe9dxrpWvsR6"
+                },
+                {
+                    "time": "19:00-21:30",
+                    "location": "Save One Go Market 逛街用餐",
+                    "mapURL": "https://maps.app.goo.gl/8oMdiRPceXYnsXNq8",
+                    "noteURL": "https://maps.app.goo.gl/4aPxYPqDVpryj7zZ7",
+                    "transport": "Bolt",
+                    "cost": "250",
+                    "notes": "ต้องจ่ายค่าทางด่วนไหม?（我需要繳過路費嗎？）\n建議費用：160-250 泰銖 (車費)；免費廁所)"
+                },
+                {
+                    "time": "21:30",
+                    "location": "BTS Yaek Kor Por Aor（N23） → Ratchathewi（N1）",
+                    "mapURL": "",
+                    "transport": "BTS",
+                    "cost": "58",
+                    "notes": "飯店在 Ratchathewi 站附近；1號出口"
+                },
+                {
+                    "time": "22:30",
+                    "location": "抵達 飯店 BaanSu Hostel บ้านซูโฮสเทล",
+                    "mapURL": "https://maps.app.goo.gl/4RVqrgHZEdgMvz9M9",
+                    "noteURL": "https://maps.app.goo.gl/YbGyCr8CWHu6LwTR7",
+                    "transport": "步行/無",
+                    "cost": "0",
+                    "notes": "ถนนนี้ไปถึงที่นั่นไหม? “Does this road come here?”（這條路會到這裡嗎？）"
                 }
-            } catch (e) {
-                console.error("Error parsing stored data, falling back to original data.", e);
-            }
-        }
-        return originalTripData;
-    }
-
-    function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-    }
-
-    function getSortableTime(timeStr) {
-        if (!timeStr || typeof timeStr !== 'string') return '99:99'; 
-        const parts = timeStr.split('-');
-        return parts[0].trim();
-    }
-
-    function sortEventsByTime(events) {
-        events.sort((a, b) => {
-            const timeA = getSortableTime(a.time);
-            const timeB = getSortableTime(b.time);
-
-            if (timeA < timeB) {
-                return -1;
-            }
-            if (timeA > timeB) {
-                return 1;
-            }
-            return 0;
-        });
-    }
-
-    // --- 初始化與事件監聽 ---
-    document.addEventListener('DOMContentLoaded', () => {
-        appData = loadData();
-        initApp();
-        document.getElementById('event-form').addEventListener('submit', handleSaveEvent);
-        
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('more-menu-dropdown');
-            const btn = document.getElementById('more-menu-btn');
-            if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                menu.classList.remove('show');
-            }
-        });
-
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
-        if(themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', () => {
-                const current = document.body.getAttribute('data-theme');
-                const newTheme = current === 'dark' ? 'light' : 'dark';
-                
-                document.body.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                updateThemeIcon(newTheme);
-                
-                document.getElementById('more-menu-dropdown').classList.remove('show');
-            });
-        }
-        
-        const reloadBtn = document.getElementById('reload-server-data-btn');
-        if(reloadBtn) {
-            reloadBtn.addEventListener('click', handleReloadServerData);
-        }
-
-        const dayNav = document.querySelector('.day-nav');
-        if(dayNav) {
-            dayNav.addEventListener('click', (e) => {
-                if (e.target === dayNav || e.target.closest('.nav-container')) {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
+            ]
+        },
+        {
+            "day": "Day 2",
+            "date": "11/28 (五)",
+            "fullDate": "2025-11-28",
+            "theme": "購物探索",
+            "events": [
+                {
+                    "time": "08:00-08:40",
+                    "location": "ปุ้ย อาหารตามสั่ง 早餐",
+                    "mapURL": "https://maps.app.goo.gl/KQM1mnCba3ha8DuW6",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "Little spicy\n15.冬蔭功湯 ฿80\n16.打拋脆皮豬肉 ฿80\n17.豬肉炒粿條 ฿60"
+                },
+                {
+                    "time": "08:50",
+                    "location": "Saphan Hua Chang 碼頭 → Pratunam 碼頭",
+                    "mapURL": "https://maps.app.goo.gl/FM8bpy6NqU7Gy3dw5",
+                    "noteURL": "",
+                    "transport": "船",
+                    "cost": "12",
+                    "notes": "ท่าเรือประตูน้ำ"
+                },
+                {
+                    "time": "09:00-09:30",
+                    "location": "Grand Superrich 換匯",
+                    "mapURL": "https://maps.app.goo.gl/4xpb8jh8b5wAn8uf8",
+                    "noteURL": "https://maps.app.goo.gl/xYkSvtvEZtjjzPik7",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "帶護照、填手機號碼\n換好去Mumucha買飲料"
+                },
+                {
+                    "time": "09:30-10:30",
+                    "location": "Big C",
+                    "mapURL": "https://maps.app.goo.gl/CbMoUvckVezo2Day9",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "1F - Moshi Moshi\n2F - Cha Tra Mue( ชาเขียวน้ำตาลโตนดวิปซีส Green Tea Palm Sugar with Whipped Cheese 30% ฿65)"
+                },
+                {
+                    "time": "10:30-11:40",
+                    "location": "象神、Central World",
+                    "mapURL": "https://maps.app.goo.gl/NrcaKHXyhsXWvET4A",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "2F - THE EDITOR'S MARKET、with.it\n4F - vibes\n5F - avocado、Nature 、HIGH SCHOOL、JS Art I Shop"
+                },
+                {
+                    "time": "11:40-12:00",
+                    "location": "四面佛",
+                    "mapURL": "https://maps.app.goo.gl/BxTUyirb7iHzWAxCA",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": ""
+                },
+                {
+                    "time": "12:15-13:45",
+                    "location": "Siam Center、暹羅廣場、20泰銖生醃海鮮",
+                    "mapURL": "https://reurl.cc/Vm8Mnn",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "20泰銖生醃海鮮 - 醃鮭魚(แซลมอนดอง 15 ชิ้น ฿100)、醃蝦(กุ้งดอง 3 ชิ้น ฿20)"
+                },
+                {
+                    "time": "13:50",
+                    "location": "BTS Siam（CEN）→ Asok（E4）",
+                    "transport": "BTS",
+                    "cost": "32",
+                    "notes": "4號出口",
+                    "mapURL": ""
+                },
+                {
+                    "time": "14:10-16:20",
+                    "location": "Terminal 21 用餐&逛街",
+                    "mapURL": "https://maps.app.goo.gl/SksHVhrP9dQqB6sv5",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "LG - Gourmet Market\nGF - JASPAL\n1F - SOS、JS Art I Shop\n4F - Cha Tra Mue\n5F (Pier21) - 1.炸雞฿30、2.火山排骨(11號) ฿60、9.豬腳飯、22.烤鴨翡翠麵、24.芒果糯米飯(12號) ฿35、30 - 冰淇淋甜筒 泰奶(1號)฿15；椰殼冰淇淋(4號)฿28；考椰子汁(6號)฿28；新鮮椰子汁(7號)฿35、普通3.海南雞飯"
+                },
+                {
+                    "time": "16:00",
+                    "location": "MRT Sukhumvit（BL22）→Hua Lamphong（BL28）",
+                    "mapURL": "",
+                    "noteURL": "",
+                    "transport": "MRT",
+                    "cost": "30",
+                    "notes": "3號出口"
+                },
+                {
+                    "time": "17:05-18:30",
+                    "location": "Aey Seafood 晚餐",
+                    "mapURL": "https://maps.app.goo.gl/TTe8VaJ6NU5vztoQ6",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "咖哩粉炒蟹(Stir Fried Crab Meat In Curry Power) ฿290\n鮮蝦粉絲(กุ้งอบวุ้นเส้น) ฿70\n魚露炸鱸魚(Deep Fried Sea Bass In Fish Sauce) ฿390\n奶油蒜香烤扇貝 (Scallop Baked with Butter & Garlic) ฿120"
+                },
+                {
+                    "time": "18:30-20:30",
+                    "location": "朱拉隆功夜市",
+                    "mapURL": "https://reurl.cc/0a6LWo",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "Pork Satay Nai Song - 豬肉沙爹(หมูสะเต๊ะนายชัง 10 ไม้ ฿110)、外帶(เอากลับบ้าน)"
+                },
+                {
+                    "time": "20:40",
+                    "location": "抵達 飯店",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "步行回飯店",
+                    "mapURL": "https://maps.app.goo.gl/4RVqrgHZEdgMvz9M9"
                 }
-            });
+            ]
+        },
+        {
+            "day": "Day 3",
+            "date": "11/29 (六)",
+            "fullDate": "2025-11-29",
+            "theme": "市集日",
+            "events": [
+                {
+                    "time": "08:35",
+                    "location": "飯店出發",
+                    "mapURL": "",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": ""
+                },
+                {
+                    "time": "08:45",
+                    "location": "Saphan Hua Chang碼頭 → Panfa Leelard 碼頭",
+                    "mapURL": "https://maps.app.goo.gl/FM8bpy6NqU7Gy3dw5",
+                    "noteURL": "",
+                    "transport": "船",
+                    "cost": "12",
+                    "notes": "ท่าเรือผ่านฟ้าลีลาศ"
+                },
+                {
+                    "time": "09:00-09:50",
+                    "location": "王孫寺",
+                    "mapURL": "https://maps.app.goo.gl/YQsR3xxebbojSdfW6",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "20",
+                    "notes": "門票 20 泰銖；收費廁所"
+                },
+                {
+                    "time": "10:05-11:50",
+                    "location": "南龍傳統市場 用餐",
+                    "mapURL": "https://reurl.cc/QV4nXq",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "市場內有廁所\nNeua Tun Nang Loeng - เกาเหลา ฿100 (2 ชิ้น)、(Extra bowl and spoon, please. กรุณาให้ชามและช้อนเพิ่มให้ฉันด้วย)\nYa Chaem's Kanom Bueang Yuan - 加蛋(ใส่ไข่ ฿60)、不加蛋(ไม่ใส่ไข่ ฿60)\nJib Kee 洽記燒鴨 - Roasted duck (เป็ดย่าง Small ฿120 )、Crispy pork (หมูกรอบ Small ฿100)、Duck intestines (ไส้เป็ด)"
+                },
+                {
+                    "time": "12:00-13:00",
+                    "location": "Nangloeng Market → Wat Phai Tan (往恰圖恰方向)",
+                    "mapURL": "",
+                    "noteURL": "",
+                    "transport": "Bolt/公車",
+                    "cost": "160",
+                    "notes": "公車 - 44 EV (2-42)、8 EV (2-38)\nBolt - 車費預計 130-160 泰銖"
+                },
+                {
+                    "time": "13:10-16:30",
+                    "location": "Chatuchak 週末市集",
+                    "mapURL": "https://maps.app.goo.gl/zx5PYNH7xp8kNzfLA",
+                    "transport": "無",
+                    "cost": "0",
+                    "notes": "百貨公司內有廁所",
+                    "noteURL": "https://onamap.me/maps/ChatuchakMarket/?fbclid=IwY2xjawN4UVhleHRuA2FlbQIxMABicmlkETE0RmFlbDFhUEJWSk1GTXdMc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHnwpFKQ9FKLWt28yRZ6uH7HEmRozTBj_jtU6YQCWqRkPutqvfiVgzoNeB3_3_aem_0bYM8iHSQnQyuxD85xECJA"
+                },
+                {
+                    "time": "16:40",
+                    "location": "BTS Mo Chit（N8）→ Ha Yaek Lat Phrao（N9）",
+                    "mapURL": "",
+                    "transport": "BTS",
+                    "cost": "15",
+                    "notes": "4號出口"
+                },
+                {
+                    "time": "17:00-19:00",
+                    "location": "Liabduan Danneramit 夜市",
+                    "mapURL": "https://maps.app.goo.gl/Q5YWVxmA8V8xNQky5",
+                    "transport": "BTS",
+                    "cost": "5",
+                    "notes": "夜市廁所 5 泰銖"
+                },
+                {
+                    "time": "19:05-20:00",
+                    "location": "Lotus’s Lat Phrao 超市",
+                    "mapURL": "https://maps.app.goo.gl/9i6xLL4ZEvHuZX6d7",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "免費廁所"
+                },
+                {
+                    "time": "20:05",
+                    "location": "BTS 回飯店",
+                    "mapURL": "https://maps.app.goo.gl/fwtscEvcs2djsxit8",
+                    "noteURL": "",
+                    "transport": "BTS",
+                    "cost": "58",
+                    "notes": "BTS Ha Yaek Lat Phrao（N9）→ Ratchathewi（N1）；1號出口回飯店"
+                }
+            ]
+        },
+        {
+            "day": "Day 4",
+            "date": "11/30 (日)",
+            "fullDate": "2025-11-30",
+            "theme": "寺廟與河畔",
+            "events": [
+                {
+                    "time": "08:10",
+                    "location": "飯店出發",
+                    "mapURL": "",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": ""
+                },
+                {
+                    "time": "08:30-10:30",
+                    "location": "大皇宮",
+                    "mapURL": "https://maps.app.goo.gl/A7gGMbr39LykyHWDA",
+                    "noteURL": "",
+                    "transport": "Bolt",
+                    "cost": "500",
+                    "notes": "車費預計 100~150 泰銖\n門票 500 泰銖\n免費廁所"
+                },
+                {
+                    "time": "10:50-11:50",
+                    "location": "ครัวพี่น้อง อาหารตามสั่ง 午餐",
+                    "mapURL": "https://maps.app.goo.gl/2benCaRwUvNQp7bN7",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "ข้าวกะเพรา หมูกรอบ พิเศษ ฿70\nผัดไทยใส่ไข่ สูตรคุณแม่ ทะเล พิเศษ ฿80\nก๋วยเตี๋ยวสายคั่ว หมู+หมึกกรอบ พิเศษ ฿70"
+                },
+                {
+                    "time": "11:55-13:00",
+                    "location": "拉查波比托寺",
+                    "mapURL": "https://maps.app.goo.gl/eJLNe9hqM78wiMzW7",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "免費廁所 (注意：廁所沒衛生紙)"
+                },
+                {
+                    "time": "13:15-14:55",
+                    "location": "臥佛寺",
+                    "mapURL": "https://maps.app.goo.gl/PLBcvUe9xZ4awXCX6",
+                    "transport": "步行",
+                    "cost": "300",
+                    "notes": "門票 300 泰銖；免費廁所"
+                },
+                {
+                    "time": "15:05-15:20",
+                    "location": "Tha Tien 碼頭（N8）",
+                    "mapURL": "https://maps.app.goo.gl/4RScZ4wrYMBhEjsL6",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": ""
+                },
+                {
+                    "time": "15:05-15:20",
+                    "location": "Tha Tien 碼頭（N8）→ 鄭王廟",
+                    "mapURL": "",
+                    "noteURL": "",
+                    "transport": "渡輪",
+                    "cost": "5",
+                    "notes": "每10分鐘一班船"
+                },
+                {
+                    "time": "15:30-16:20",
+                    "location": "ใสสะอาด ก๋วยเตี๋ยวลูกชิ้นน้ำใส สาขาอรุณอมรินทร์ 用餐",
+                    "mapURL": "https://maps.app.goo.gl/UqDggDHZAXKzNDut6",
+                    "noteURL": "",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "เส้นเล็ก แห้ง เนื้อ เปื่อย พิเศษ ฿90\nเส้นเล็ก น้ำ เนื้อ เปื่อย พิเศษ ฿90\nเส้นหมี่ต้มยำหมู เผ็ดน้อย พิเศษ ฿60\nลูกชิ้นปิ้งไม้ละ หมู ฿15 3 ชิ้น；เนื้อ ฿16 3 ชิ้น"
+                },
+                {
+                    "time": "16:30-18:00",
+                    "location": "鄭王廟",
+                    "mapURL": "https://maps.app.goo.gl/5spoMeseArNcMB1v7",
+                    "transport": "步行",
+                    "cost": "200",
+                    "notes": "門票 200 泰銖；免費廁所"
+                },
+                {
+                    "time": "18:00-18:10",
+                    "location": "藍船 → ICONSIAM",
+                    "mapURL": "https://maps.app.goo.gl/EyBxBW3Jdy9nET7o8",
+                    "noteURL": "",
+                    "transport": "船",
+                    "cost": "40",
+                    "notes": "或搭 18:40 班次；記得坐右邊"
+                },
+                {
+                    "time": "18:10-20:30",
+                    "location": "ICONSIAM 逛街",
+                    "mapURL": "https://maps.app.goo.gl/pzWwXe4nZRKu81Un7",
+                    "noteURL": "",
+                    "transport": "無",
+                    "cost": "0",
+                    "notes": "河畔聲光水舞表演 19、20、21點\nG、UG樓 - 室內水上市場、 Lung Ngen Coffee(泰奶60)、Karun(泰奶冰沙110 糖40%)、ChaTraMue、小蜜蜂泰式脆皮可麗餅3個60\n2樓 - 暹羅天地公園(Apple門市外)、The Selected\n3樓 - Loft(帆布包)\n4樓 - ICONCRAFT\n5樓 - ECOTOPIA(buffollow)\n6樓 - 沉浸式體驗(BLOOM in Four Seasons)\n7樓 - 瀑布水舞、觀景台"
+                },
+                {
+                    "time": "20:30-20:40",
+                    "location": "接駁船 → Sathorn碼頭",
+                    "mapURL": "https://maps.app.goo.gl/sz2fjTrVhZEFtzi97",
+                    "noteURL": "",
+                    "transport": "船",
+                    "cost": "0",
+                    "notes": "GF 2號門；1號碼頭"
+                },
+                {
+                    "time": "20:40",
+                    "location": "BTS回飯店",
+                    "mapURL": "https://maps.app.goo.gl/fwtscEvcs2djsxit8",
+                    "noteURL": "",
+                    "transport": "BTS",
+                    "cost": "51",
+                    "notes": "BTS Saphan Taksin(S6) → National Stadium(W1)；1號出口；走水溝巷子"
+                }
+            ]
+        },
+        {
+            "day": "Day 5",
+            "date": "12/1 (一)",
+            "fullDate": "2025-12-01",
+            "theme": "大城一日遊",
+            "events": [
+                {
+                    "time": "09:00",
+                    "location": "飯店集合",
+                    "transport": "包車",
+                    "cost": "0",
+                    "notes": "包車一日遊開始",
+                    "mapURL": ""
+                },
+                {
+                    "time": "10:45-11:40",
+                    "location": "Prasat Nakhon Luang",
+                    "mapURL": "https://maps.app.goo.gl/T4XBoZhYw8G6umrt9",
+                    "noteURL": "",
+                    "transport": "包車",
+                    "cost": "0",
+                    "notes": ""
+                },
+                {
+                    "time": "12:00-13:00",
+                    "location": "Kung Phuean Praew 午餐",
+                    "mapURL": "https://maps.app.goo.gl/Steo4JcNdiS2rkzp9",
+                    "noteURL": "",
+                    "transport": "包車",
+                    "cost": "0",
+                    "notes": "Grilled Prawn (กุ้งเผา ฿380 1กก.+ ฿450 1กก.)\nFried Rice with Crabmeat (ข้าวผัดปู 95฿)"
+                },
+                {
+                    "time": "13:15-14:10",
+                    "location": "崖差蒙空寺",
+                    "mapURL": "https://maps.app.goo.gl/wBedJu1YvJfGAw7M6",
+                    "noteURL": "",
+                    "transport": "包車",
+                    "cost": "20",
+                    "notes": "門票 20 泰銖"
+                },
+                {
+                    "time": "14:20-14:40",
+                    "location": "三寶公寺",
+                    "mapURL": "https://maps.app.goo.gl/vH7gbj5w3tQVz4aR6",
+                    "noteURL": "",
+                    "transport": "包車",
+                    "cost": "0",
+                    "notes": ""
+                },
+                {
+                    "time": "14:55-15:40",
+                    "location": "柴瓦塔那蘭寺",
+                    "mapURL": "https://maps.app.goo.gl/vYWqGfLC6jRALCzEA",
+                    "transport": "包車",
+                    "cost": "80",
+                    "notes": "門票 80 泰銖"
+                },
+                {
+                    "time": "15:50-16:05",
+                    "location": "Roti Sai Mai Abeedeen-Pranom Sangaroon 糖絲卷餅",
+                    "mapURL": "https://maps.app.goo.gl/Q8vzJbu4oypvtsNt9",
+                    "noteURL": "",
+                    "transport": "包車",
+                    "cost": "0",
+                    "notes": "斑斕1kg(ใบเตย 1กก.) ฿100"
+                },
+                {
+                    "time": "16:10-16:50",
+                    "location": "Pa Lek Boat Noodle 晚餐",
+                    "mapURL": "https://maps.app.goo.gl/gPtuwsvJEyiR9mo2A",
+                    "noteURL": "",
+                    "transport": "包車",
+                    "cost": "0",
+                    "notes": "晚餐地點"
+                },
+                {
+                    "time": "16:55-18:00",
+                    "location": "瑪哈泰寺",
+                    "mapURL": "https://maps.app.goo.gl/88s6ZQkrSbwUwry58",
+                    "transport": "步行",
+                    "cost": "80",
+                    "notes": "門票 80 泰銖；注意：17點前要入場"
+                },
+                {
+                    "time": "18:05-19:10",
+                    "location": "Ong Gaan Tolasap 夜市",
+                    "mapURL": "https://maps.app.goo.gl/zAtkmgiKMjabvyxu9",
+                    "transport": "步行",
+                    "cost": "0",
+                    "notes": "大城夜市"
+                },
+                {
+                    "time": "20:30",
+                    "location": "DMK 機場",
+                    "mapURL": "https://maps.app.goo.gl/XEcdjEe9dxrpWvsR6",
+                    "transport": "包車",
+                    "cost": "0",
+                    "notes": "搭乘包車前往機場"
+                },
+                {
+                    "time": "2:45-7:15",
+                    "location": "Thai Lion Air SL390",
+                    "mapURL": "",
+                    "noteURL": "",
+                    "transport": "飛機",
+                    "cost": "0",
+                    "notes": "我: CDKUOT\n媽: QMWWYM\n妹: CFDLRA"
+                }
+            ]
         }
-        
-        initSwipeListeners();
-        initScrollListener();
-        initTheme();
-    });
-
-    function initApp() {
-        determineInitialDay();
-        renderNavigation();
-        renderDay(currentDayIndex);
-        updateEditButtonUI();
-    }
-    
-    function initTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.body.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
-    }
-
-    function initSwipeListeners() {
-        const swipeContainer = document.getElementById('swipe-container');
-        if (!swipeContainer) return;
-        
-        swipeContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-        swipeContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-        swipeContainer.addEventListener('mousedown', (e) => mouseStartX = e.screenX);
-        swipeContainer.addEventListener('mouseup', handleMouseSwipe);
-
-        document.body.addEventListener('mousedown', (e) => {
-            mouseStartX = e.screenX;
-        });
-        document.body.addEventListener('mouseup', handleMouseSwipe);
-    }
-    
-    function initScrollListener() {
-        let lastScrollY = window.scrollY;
-        const dayNav = document.querySelector('.day-nav');
-
-        window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-            
-            if (currentScrollY > lastScrollY && currentScrollY > 150) {
-                dayNav.classList.remove('show');
-                dayNav.classList.add('hide');
-            } else if (currentScrollY < lastScrollY) {
-                dayNav.classList.remove('hide');
-                dayNav.classList.add('show');
-            }
-            
-            lastScrollY = currentScrollY;
-        });
-    }
-
-    // --- UI/渲染邏輯 ---
-    function showToast(message) {
-        const toast = document.getElementById('toast-notification');
-        toast.textContent = message;
-        toast.classList.add('visible');
-        
-        clearTimeout(window.toastTimeout);
-        window.toastTimeout = setTimeout(() => {
-            toast.classList.remove('visible');
-        }, 3000);
-    }
-
-    function determineInitialDay() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`;
-
-        const foundIndex = appData.days.findIndex(d => d.fullDate === todayStr);
-        
-        if (foundIndex !== -1) {
-            currentDayIndex = foundIndex;
-        } else {
-            currentDayIndex = 0;
-        }
-    }
-
-    function renderNavigation() {
-        const navContainer = document.getElementById('nav-container');
-        navContainer.innerHTML = '';
-
-        const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-
-        appData.days.forEach((dayData, index) => {
-            const btn = document.createElement('button');
-            btn.className = `nav-btn ${index === currentDayIndex ? 'active' : ''}`;
-
-            const dateObj = new Date(dayData.fullDate);
-            const month = dateObj.getMonth() + 1;
-            const date = dateObj.getDate();
-            const weekday = weekdays[dateObj.getDay()];
-
-            btn.textContent = `${dayData.day} (${month}/${date} ${weekday})`;
-            
-            btn.onclick = () => {
-                currentDayIndex = index;
-                updateNavState();
-                renderDay(index);
-            };
-            navContainer.appendChild(btn);
-        });
-        
-        setTimeout(updateNavState, 100);
-    }
-
-    function updateNavState() {
-        const btns = document.querySelectorAll('.nav-btn');
-        btns.forEach((btn, index) => {
-            if (index === currentDayIndex) {
-                btn.classList.add('active');
-                btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-    }
-    
-    function renderDay(dayIndex) {
-        const container = document.getElementById('schedule-container');
-        const dayData = appData.days[dayIndex];
-        
-        container.innerHTML = '';
-
-        const themeHeader = document.createElement('div');
-        themeHeader.style.textAlign = 'center';
-        themeHeader.innerHTML = `<h2 class="day-theme">${dayData.theme}</h2>`;
-        container.appendChild(themeHeader);
-
-        const timeline = document.createElement('div');
-        timeline.className = 'timeline';
-
-        let dailyTotal = 0;
-
-        dayData.events.forEach((event, eventIndex) => {
-            const storageKeyPrefix = `trip_d${dayIndex}_e${eventIndex}`;
-            const isCompleted = localStorage.getItem(`${storageKeyPrefix}${CHECK_KEY_SUFFIX}`) === 'true';
-            const storedCost = localStorage.getItem(`${storageKeyPrefix}${COST_KEY_SUFFIX}`);
-            
-            const displayCost = storedCost !== null ? storedCost : '';
-            if (storedCost && !isNaN(parseInt(storedCost))) dailyTotal += parseInt(storedCost);
-
-            const card = document.createElement('div');
-            card.className = `event-card ${isCompleted ? 'completed' : ''}`;
-            card.id = `card-${dayIndex}-${eventIndex}`;
-
-            let transportIcon = '🚶';
-            let transportClass = 'trans-walk';
-            const t = event.transport ? event.transport.toLowerCase() : '';
-            
-            if (t.includes('bts') || t.includes('mrt')) {
-                transportIcon = '🚆';
-                transportClass = 'trans-bts';
-            } else if (t.includes('船') || t.includes('渡輪') || t.includes('ferry')) {
-                transportIcon = '⛴️';
-                transportClass = 'trans-boat';
-            } else if (t.includes('bolt') || t.includes('包車') || t.includes('公車') || t.includes('car')) {
-                transportIcon = '🚗';
-                transportClass = 'trans-car';
-            }
-            else if (t.includes('飛機')) {
-                transportIcon = '✈️';
-                transportClass = 'trans-bts';
-            }
-
-            const formattedNotes = formatNotes(event.notes);
-            
-            let headerContent = '';
-            if (isEditMode) {
-                headerContent = `
-                    <div class="edit-controls">
-                        <button onclick="startEditEvent(${dayIndex}, ${eventIndex})" class="edit-icon">
-                            ✏️
-                        </button>
-                        <button onclick="deleteEvent(${dayIndex}, ${eventIndex})" class="delete-icon">
-                            🗑️
-                        </button>
-                    </div>
-                `;
-            } 
-
-            const mapIconHTML = event.mapURL ? `
-                <a href="${event.mapURL}" target="_blank" class="map-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                    </svg>
-                </a>
-            ` : '';
-
-            const noteIconHTML = event.noteURL ? `
-                <a href="${event.noteURL}" target="_blank" class="note-icon">
-                    🚀
-                </a>
-            ` : '';
-
-            const notesHTML = event.notes ? `
-                <div class="notes-container" id="notes-container-${dayIndex}-${eventIndex}">
-                    <div class="event-notes collapsed" id="event-notes-${dayIndex}-${eventIndex}">
-                        ${formattedNotes}
-                    </div>
-                    <button class="toggle-notes-btn" onclick="toggleNotes(${dayIndex}, ${eventIndex}, this)">
-                        展開備註 🔽
-                    </button>
-                </div>
-            ` : '';
-            
-            card.innerHTML = `
-                <div class="event-header">
-                    <span class="event-time">${event.time}</span>
-                    ${headerContent}
-                </div>
-                
-                <div class="event-location-group">
-                    <div class="event-location">${event.location}</div>
-                    ${mapIconHTML}
-                    ${noteIconHTML}
-                </div>
-                
-                <div class="event-details">
-                    <span class="badge ${transportClass}">${transportIcon} ${event.transport}</span>
-                    <div class="cost-section" onclick="enableCostEdit(${dayIndex}, ${eventIndex}, this)">
-                        <span id="cost-display-${dayIndex}-${eventIndex}">
-                            ${storedCost ? `實支: ฿${storedCost}` : `預估: ฿${event.cost}`}
-                        </span>
-                    </div>
-                </div>
-                
-                ${notesHTML}
-            `;
-
-            timeline.appendChild(card);
-        });
-
-        container.appendChild(timeline);
-        
-        if (isEditMode) {
-            const addBtn = document.createElement('button');
-            addBtn.className = 'add-event-btn';
-            addBtn.textContent = '+ 新增行程';
-            addBtn.onclick = () => startAddEvent(dayIndex);
-            container.appendChild(addBtn);
-        }
-
-        const summary = document.createElement('div');
-        summary.className = 'daily-summary';
-        summary.innerHTML = `
-            <div class="total-label">本日實際總花費</div>
-            <div class="total-amount">฿${dailyTotal}</div>
-            <button class="reset-btn" onclick="resetDailyCosts(${dayIndex})">重置本日花費</button>
-        `;
-        container.appendChild(summary);
-    }
-    
-    function updateEditButtonUI() {
-        const btn = document.getElementById('edit-toggle-btn');
-        const iconElement = document.getElementById('edit-icon');
-
-        if (isEditMode) {
-            btn.classList.add('active');
-            btn.title = '結束編輯模式';
-            iconElement.innerHTML = `<path d="M5 12l5 5l8-8"/>`;
-        } else {
-            btn.classList.remove('active');
-            btn.title = '切換編輯模式';
-            iconElement.innerHTML = `<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>`;
-        }
-    }
-    
-    function updateThemeIcon(theme) {
-        const themeIcon = document.getElementById('theme-icon');
-        if (theme === 'dark') {
-            themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
-        } else {
-            themeIcon.innerHTML = `
-                <circle cx="12" cy="12" r="5"/>
-                <line x1="12" y1="1" x2="12" y2="3"/>
-                <line x1="12" y1="21" x2="12" y2="23"/>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                <line x1="1" y1="12" x2="3" y2="12"/>
-                <line x1="21" y1="12" x2="23" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            `;
-        }
-    }
-
-    // --- 編輯與操作邏輯 ---
-    
-    window.toggleEditMode = function() {
-        isEditMode = !isEditMode;
-        updateEditButtonUI();
-        renderDay(currentDayIndex);
-    }
-
-    function handleSaveEvent(e) {
-        e.preventDefault();
-        
-        const dayIndex = parseInt(document.getElementById('event-day-index').value);
-        const eventIndex = parseInt(document.getElementById('event-index').value);
-
-        const newEvent = {
-            time: document.getElementById('event-time-input').value,
-            location: document.getElementById('event-location-input').value,
-            mapURL: document.getElementById('event-map-url-input').value.trim(),
-            noteURL: document.getElementById('event-note-url-input').value.trim(),
-            transport: document.getElementById('event-transport-input').value,
-            cost: document.getElementById('event-estimated-cost-input').value || '0',
-            notes: document.getElementById('event-notes-input').value
-        };
-
-        if (eventIndex === -1) {
-            appData.days[dayIndex].events.push(newEvent);
-        } else {
-            appData.days[dayIndex].events[eventIndex] = newEvent;
-        }
-
-        sortEventsByTime(appData.days[dayIndex].events);
-
-        saveData();
-        closeEditModal();
-        renderDay(dayIndex);
-    }
-
-    window.deleteEvent = function(dayIndex, eventIndex) {
-        if(!confirm("確定要刪除此行程嗎？")) return;
-
-        appData.days[dayIndex].events.splice(eventIndex, 1);
-        saveData();
-        
-        localStorage.removeItem(`trip_d${dayIndex}_e${eventIndex}${CHECK_KEY_SUFFIX}`);
-        localStorage.removeItem(`trip_d${dayIndex}_e${eventIndex}${COST_KEY_SUFFIX}`);
-        
-        sortEventsByTime(appData.days[dayIndex].events);
-        renderDay(dayIndex);
-    }
-    
-    window.handleReloadServerData = function() {
-        const userConfirmed = confirm(
-            "⚠️ 這會把你目前在 localStorage 裡的所有自訂行程、記帳、完成狀態全部覆蓋，恢復成最一開始的原始行程！\n\n確定要繼續嗎？"
-        );
-
-        if (!userConfirmed) return;
-
-        appData = JSON.parse(JSON.stringify(originalTripData));
-
-        localStorage.removeItem(STORAGE_KEY);
-
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && (key.startsWith('trip_') || key.startsWith('bangkokTripData'))) {
-                localStorage.removeItem(key);
-            }
-        }
-
-        saveData();
-
-        showToast('✅ 已成功從伺服器重新載入原始行程！');
-        setTimeout(() => location.reload(), 1200);
-    }
-
-    // --- 滑動邏輯 ---
-    function handleTouchStart(e) {
-        touchStartX = e.changedTouches[0].screenX;
-    }
-
-    function handleTouchEnd(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    }
-
-    function handleSwipe() {
-        const swipeDistance = touchStartX - touchEndX;
-
-        if (Math.abs(swipeDistance) < minSwipeDistance) return;
-
-        if (swipeDistance > 0) {
-            if (currentDayIndex < appData.days.length - 1) {
-                currentDayIndex++;
-            }
-        } else {
-            if (currentDayIndex > 0) {
-                currentDayIndex--;
-            }
-        }
-
-        updateNavState();
-        renderDay(currentDayIndex);
-
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    }
-
-    function handleMouseSwipe(e) {
-        const diff = mouseStartX - e.screenX;
-        if (Math.abs(diff) > 80) {
-            if (diff > 0 && currentDayIndex < appData.days.length - 1) currentDayIndex++;
-            else if (diff < 0 && currentDayIndex > 0) currentDayIndex--;
-            updateNavState();
-            renderDay(currentDayIndex);
-        }
-    }
-
-    // --- 記帳與備註邏輯 ---
-    window.toggleNotes = function(dayIndex, eventIndex, button) {
-        const notesElement = document.getElementById(`event-notes-${dayIndex}-${eventIndex}`);
-        
-        if (notesElement.classList.contains('collapsed')) {
-            notesElement.classList.remove('collapsed');
-            button.textContent = '收起備註 🔼';
-            notesElement.style.maxHeight = notesElement.scrollHeight + "px";
-        } else {
-            notesElement.classList.add('collapsed');
-            button.textContent = '展開備註 🔽';
-            notesElement.style.maxHeight = '100px'; 
-        }
-    }
-
-    function formatNotes(text) {
-        if (!text) return "";
-
-        const lines = text.trim().split('\n').map(line => line.trim()).filter(line => line.length > 0);
-
-        let html = '<ul>';
-
-        const applyHighlighting = (item) => {
-            let itemHtml = item;
-
-            itemHtml = itemHtml.replace(/(\([^)]+\))/g, (match) => {
-                return `<span class="highlight-parentheses">${match}</span>`;
-            });
-
-            itemHtml = itemHtml.replace(/(\b\d+[\s%個]*)/g, (match) => {
-                return `<span class="price-info">${match}</span>`;
-            });
-
-            return itemHtml;
-        };
-
-
-        lines.forEach(line => {
-            const separatorIndex = line.indexOf('-');
-
-            if (separatorIndex !== -1 && (separatorIndex > 0 || separatorIndex < line.length - 1)) {
-
-                const floorTitle = applyHighlighting(line.substring(0, separatorIndex).trim());
-                const content = line.substring(separatorIndex + 1).trim();
-
-                html += `
-                    <li class="floor-section">
-                        <h3 class="floor-title">✨ ${floorTitle}</h3>
-                        <ul class="floor-content-list">
-                `;
-
-                const contentItems = content.split(/\s*(?:、|,)\s*(?![^(]*\))/).map(item => item.trim()).filter(item => item.length > 0);
-
-                contentItems.forEach(item => {
-                    const itemHtml = applyHighlighting(item);
-                    html += `<li>${itemHtml}</li>`;
-                });
-
-                html += `</ul></li>`;
-
-            } else if (line.length > 0) {
-                
-                const lineHtml = applyHighlighting(line);
-
-                html += `<li class="floor-section"><h3>✨${lineHtml}</h3></li>`;
-            }
-        });
-
-        html += '</ul>';
-
-        return html;
-    }
-
-    window.toggleComplete = function(dayIndex, eventIndex, checkbox) {
-        if (isEditMode) return;
-        const card = document.getElementById(`card-${dayIndex}-${eventIndex}`);
-        const key = `trip_d${dayIndex}_e${eventIndex}${CHECK_KEY_SUFFIX}`;
-        
-        if (checkbox.checked) {
-            localStorage.setItem(key, 'true');
-            card.classList.add('completed');
-        } else {
-            localStorage.removeItem(key);
-            card.classList.remove('completed');
-        }
-    };
-
-    window.enableCostEdit = function(dayIndex, eventIndex, element) {
-        if (isEditMode) return;
-        if (element.querySelector('input')) return;
-
-        const displaySpan = document.getElementById(`cost-display-${dayIndex}-${eventIndex}`);
-        const savedCost = localStorage.getItem(`trip_d${dayIndex}_e${eventIndex}${COST_KEY_SUFFIX}`);
-        const initialValue = savedCost ? savedCost : '';
-
-        element.innerHTML = `
-            <input type="number" class="cost-input" value="${initialValue}" 
-            placeholder="金額" 
-            onblur="saveCost(${dayIndex}, ${eventIndex}, this)" 
-            onkeydown="if(event.key === 'Enter') this.blur()">
-        `;
-        
-        const input = element.querySelector('input');
-        input.focus();
-    };
-
-    window.saveCost = function(dayIndex, eventIndex, input) {
-        const val = input.value;
-        const key = `trip_d${dayIndex}_e${eventIndex}${COST_KEY_SUFFIX}`;
-
-        if (val && val.trim() !== "" && parseInt(val) >= 0) {
-            localStorage.setItem(key, val);
-        } else {
-            localStorage.removeItem(key);
-        }
-
-        renderDay(dayIndex);
-    };
-
-    window.resetDailyCosts = function(dayIndex) {
-        if(!confirm("確定要重置今天的記帳數據嗎？")) return;
-        
-        const dayData = appData.days[dayIndex];
-        dayData.events.forEach((_, eIndex) => {
-            localStorage.removeItem(`trip_d${dayIndex}_e${eIndex}${COST_KEY_SUFFIX}`);
-        });
-        renderDay(dayIndex);
-    };
-
-    // --- Modal 與特殊功能 ---
-    window.copyAppDataToClipboard = function() {
-        const dataToCopy = JSON.stringify(appData, null, 4); 
-        
-        const textarea = document.createElement('textarea');
-        textarea.value = 'const originalTripData = ' + dataToCopy + ';';
-        textarea.style.position = 'fixed';
-        textarea.style.left = '-9999px';
-        document.body.appendChild(textarea);
-        
-        textarea.select();
-        
-        try {
-            const successful = document.execCommand('copy');
-            if (successful) {
-                showToast('✅ 數據已成功複製到剪貼簿！');
-            } else {
-                showToast('❌ 複製失敗，請手動複製。');
-            }
-        } catch (err) {
-            console.error('Copy command failed:', err);
-            showToast('❌ 複製失敗，請手動複製。');
-        }
-        
-        document.body.removeChild(textarea);
-        
-        document.getElementById('more-menu-dropdown').classList.remove('show');
-    }
-
-    window.toggleMoreMenu = function() {
-        const dropdown = document.getElementById('more-menu-dropdown');
-        dropdown.classList.toggle('show');
-    }
-
-    function openEditModal(dayIndex, eventIndex, isNew = false) {
-        const modal = document.getElementById('edit-modal');
-        const form = document.getElementById('event-form');
-        const title = document.getElementById('modal-title');
-        
-        form.reset();
-        
-        document.getElementById('event-day-index').value = dayIndex;
-        document.getElementById('event-index').value = eventIndex !== null ? eventIndex : -1;
-
-        if (isNew) {
-            title.textContent = '新增行程';
-            document.getElementById('event-estimated-cost-input').value = '0';
-        } else {
-            title.textContent = '編輯行程';
-            const event = appData.days[dayIndex].events[eventIndex];
-            document.getElementById('event-time-input').value = event.time;
-            document.getElementById('event-location-input').value = event.location;
-            document.getElementById('event-map-url-input').value = event.mapURL || '';
-            document.getElementById('event-note-url-input').value = event.noteURL || '';
-            document.getElementById('event-transport-input').value = event.transport;
-            document.getElementById('event-estimated-cost-input').value = event.cost;
-            document.getElementById('event-notes-input').value = event.notes;
-        }
-
-        modal.classList.add('visible');
-    }
-
-    window.closeEditModal = function() {
-        document.getElementById('edit-modal').classList.remove('visible');
-    }
-    
-    window.startEditEvent = function(dayIndex, eventIndex) {
-        openEditModal(dayIndex, eventIndex, false);
-    }
-
-    window.startAddEvent = function(dayIndex) {
-        openEditModal(dayIndex, null, true);
-    }
-
-    window.openQRModal = function() {
-        document.getElementById('more-menu-dropdown').classList.remove('show');
-        document.getElementById('qr-modal').classList.add('visible');
-        
-        const btns = document.querySelectorAll('.qr-person-btn');
-        btns.forEach(b => b.textContent === '我' ? b.click() : null);
-    }
-
-    window.closeQRModal = function() {
-        document.getElementById('qr-modal').classList.remove('visible');
-    }
-
-    window.switchQR = function(person, btn) {
-        document.querySelectorAll('.qr-person-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const img = document.getElementById('qr-image-display');
-        img.src = `tdac_${person}.png`;
-    }
-    
-</script>
-</body>
-</html>
+    ]
+};
